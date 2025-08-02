@@ -6,6 +6,8 @@ Contiene las funciones para resolver problemas de movimiento rectilíneo
 import numpy as np
 import math
 
+EPSILON = 1e-9 # Pequeño valor para evitar división por cero en punto flotante
+
 class KinematicsCalculator:
     def __init__(self):
         pass
@@ -19,7 +21,7 @@ class KinematicsCalculator:
         v = v0 (constante)
         """
         # Parámetros de entrada
-        x0 = params.get('x0', 0)
+        x0 = params.get('x0') if params.get('x0') is not None else 0
         v0 = params.get('v0')
         t = params.get('t')
         x = params.get('x')
@@ -30,24 +32,22 @@ class KinematicsCalculator:
         
         # Determinar qué calcular basado en los parámetros dados
         if v0 is not None and t is not None:
-            # Calcular posición final
-            if x0 is None:
-                x0 = 0
+            # Calcular posición final (x)
             x_final = x0 + v0 * t
             
             input_params = {'x0': x0, 'v0': v0, 't': t}
             calculated_values = {'x': x_final, 'v': v0}
             
-        elif x is not None and t is not None and x0 is not None:
-            # Calcular velocidad
-            v0_calc = (x - x0) / t if t != 0 else 0
+        elif x is not None and t is not None:
+            # Calcular velocidad (v0)
+            v0_calc = (x - x0) / t if abs(t) > EPSILON else 0
             
             input_params = {'x0': x0, 'x': x, 't': t}
             calculated_values = {'v0': v0_calc, 'v': v0_calc}
             
-        elif x is not None and v0 is not None and x0 is not None:
-            # Calcular tiempo
-            t_calc = (x - x0) / v0 if v0 != 0 else 0
+        elif x is not None and v0 is not None:
+            # Calcular tiempo (t)
+            t_calc = (x - x0) / v0 if abs(v0) > EPSILON else 0
             
             input_params = {'x0': x0, 'v0': v0, 'x': x}
             calculated_values = {'t': t_calc, 'v': v0}
@@ -71,7 +71,7 @@ class KinematicsCalculator:
         v = v0 + a*t
         v² = v0² + 2*a*(x-x0)
         """
-        x0 = params.get('x0', 0)
+        x0 = params.get('x0') if params.get('x0') is not None else 0
         v0 = params.get('v0')
         a = params.get('a')
         t = params.get('t')
@@ -88,10 +88,7 @@ class KinematicsCalculator:
         
         # Casos más comunes de resolución
         if v0 is not None and a is not None and t is not None:
-            # Caso 1: Conocemos v0, a, t
-            if x0 is None:
-                x0 = 0
-            
+            # Caso 1: Conocemos v0, a, t -> calcular x, v
             x_final = x0 + v0 * t + 0.5 * a * t**2
             v_final = v0 + a * t
             
@@ -99,27 +96,27 @@ class KinematicsCalculator:
             calculated_values = {'x': x_final, 'v': v_final}
             
         elif v0 is not None and a is not None and x is not None and x0 is not None:
-            # Caso 2: Conocemos v0, a, x, x0 -> calcular t y v
+            # Caso 2: Conocemos v0, a, x, x0 -> calcular t, v
             # Usando: x = x0 + v0*t + (1/2)*a*t²
             # Reordenando: (1/2)*a*t² + v0*t + (x0-x) = 0
             
-            A = 0.5 * a if a != 0 else 0
+            A = 0.5 * a
             B = v0
             C = x0 - x
             
-            if a == 0:
+            if abs(a) < EPSILON:
                 # Movimiento uniforme
-                t_calc = (x - x0) / v0 if v0 != 0 else 0
+                t_calc = (x - x0) / v0 if abs(v0) > EPSILON else 0
             else:
                 # Ecuación cuadrática
                 discriminant = B**2 - 4*A*C
                 if discriminant < 0:
-                    raise ValueError("No hay solución real para los parámetros dados")
+                    raise ValueError("No hay solución real para el tiempo (discriminante negativo)")
                 
-                t1 = (-B + math.sqrt(discriminant)) / (2*A)
-                t2 = (-B - math.sqrt(discriminant)) / (2*A)
+                t1 = (-B + np.sqrt(discriminant)) / (2*A)
+                t2 = (-B - np.sqrt(discriminant)) / (2*A)
                 
-                # Elegir la solución positiva
+                # Elegir la solución de tiempo positiva más pequeña (o la única positiva)
                 t_calc = t1 if t1 >= 0 else t2
                 if t_calc < 0:
                     raise ValueError("No se encontró una solución de tiempo válida")
@@ -130,23 +127,19 @@ class KinematicsCalculator:
             calculated_values = {'t': t_calc, 'v': v_final}
             
         elif v0 is not None and v is not None and a is not None:
-            # Caso 3: Conocemos v0, v, a -> calcular t y x
-            t_calc = (v - v0) / a if a != 0 else 0
-            
-            if x0 is None:
-                x0 = 0
-            
+            # Caso 3: Conocemos v0, v, a -> calcular t, x
+            t_calc = (v - v0) / a if abs(a) > EPSILON else 0
             x_final = x0 + v0 * t_calc + 0.5 * a * t_calc**2
             
             input_params = {'x0': x0, 'v0': v0, 'a': a, 'v': v}
             calculated_values = {'t': t_calc, 'x': x_final}
             
         elif v0 is not None and a is not None and v is not None and x0 is not None:
-            # Caso 4: Usando v² = v0² + 2*a*(x-x0)
-            delta_x = (v**2 - v0**2) / (2 * a) if a != 0 else 0
+            # Caso 4: Usando v² = v0² + 2*a*(x-x0) -> calcular x, t
+            delta_x = (v**2 - v0**2) / (2 * a) if abs(a) > EPSILON else 0
             x_final = x0 + delta_x
             
-            t_calc = (v - v0) / a if a != 0 else 0
+            t_calc = (v - v0) / a if abs(a) > EPSILON else 0
             
             input_params = {'x0': x0, 'v0': v0, 'a': a, 'v': v}
             calculated_values = {'t': t_calc, 'x': x_final}

@@ -4,30 +4,35 @@ CPHYSICS - Aplicación de Física Computacional
 Punto de entrada principal de la aplicación
 """
 
-import tkinter as tk
+import sys
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from gui.base_window import MainWindow
 
 def main():
     """Función principal que inicia la aplicación"""
-    # Crear la ventana principal
-    root = tk.Tk()
+    # Crear la aplicación
+    app = QApplication(sys.argv)
     
-    # Configuraciones básicas de la ventana
-    root.title("CPHYSICS - Física Computacional")
-    root.geometry("1000x700")
-    root.minsize(800, 600)
+    # Configurar propiedades de la aplicación
+    app.setApplicationName("CPHYSICS")
+    app.setApplicationDisplayName("CPHYSICS - Física Computacional")
+    app.setApplicationVersion("1.0.0")
+    app.setOrganizationName("CPHYSICS")
     
-    # Configurar el ícono (opcional)
+    # Configurar el ícono de la aplicación (opcional)
     try:
-        root.iconbitmap("assets/icon.ico")  # Para Windows
+        app.setWindowIcon(QIcon("assets/icon.png"))
     except:
         pass  # Si no hay ícono, continuar sin él
     
-    # Crear la aplicación principal
-    app = MainWindow(root)
+    # Crear la ventana principal
+    window = MainWindow()
+    window.show()
     
     # Iniciar el bucle principal
-    root.mainloop()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
