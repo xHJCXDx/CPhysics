@@ -20,8 +20,8 @@ def test_imports():
     try:
         print("✓ Probando matplotlib...")
         import matplotlib
-        matplotlib.use('Qt5Agg')
-        from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+        matplotlib.use('QtAgg')
+        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
         from matplotlib.figure import Figure
         print("  matplotlib OK")
     except ImportError as e:
@@ -39,6 +39,7 @@ def test_imports():
     try:
         print("✓ Probando módulos locales...")
         from modules.kinematics import KinematicsCalculator
+        from modules.dynamics import DynamicsCalculator
         from utils.validators import InputValidator
         print("  Módulos locales OK")
     except ImportError as e:
@@ -60,7 +61,14 @@ def test_basic_functionality():
         # Probar MRU simple
         params = {'x0': 0, 'v0': 10, 't': 5}
         result = calc.calculate_mru(params)
-        print(f"✓ Cálculo MRU: x = {result['calculated_values']['x']}")
+        print(f"✓ Cálculo MRU: x = {result['calculated_values']['x']:.2f}")
+        
+        # Probar calculadora de dinámica
+        from modules.dynamics import DynamicsCalculator
+        dyn_calc = DynamicsCalculator()
+        dyn_params = {'m': 10, 'a': 2}
+        dyn_result = dyn_calc.calculate_newton_second_law(dyn_params)
+        print(f"✓ Cálculo Dinámica: F = {dyn_result['calculated_values']['f']:.2f}")
         
         # Probar validador
         from utils.validators import InputValidator
