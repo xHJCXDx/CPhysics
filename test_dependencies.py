@@ -40,6 +40,7 @@ def test_imports():
         print("✓ Probando módulos locales...")
         from modules.kinematics import KinematicsCalculator
         from modules.dynamics import DynamicsCalculator
+        from modules.thermodynamics import ThermodynamicsCalculator
         from utils.validators import InputValidator
         print("  Módulos locales OK")
     except ImportError as e:
@@ -69,6 +70,13 @@ def test_basic_functionality():
         dyn_params = {'m': 10, 'a': 2}
         dyn_result = dyn_calc.calculate_newton_second_law(dyn_params)
         print(f"✓ Cálculo Dinámica: F = {dyn_result['calculated_values']['f']:.2f}")
+
+        # Probar calculadora de termodinámica
+        from modules.thermodynamics import ThermodynamicsCalculator
+        thermo_calc = ThermodynamicsCalculator()
+        thermo_params = {'V': 22.4, 'n': 1, 'T': 273.15} # Calcular P
+        thermo_result = thermo_calc.calculate_ideal_gas_law(thermo_params)
+        print(f"✓ Cálculo Termodinámica: P = {thermo_result['calculated_values']['P']:.2f} atm")
         
         # Probar validador
         from utils.validators import InputValidator

@@ -5,5 +5,6 @@ Contiene las funciones de cálculo para diferentes áreas de la física
 
 from .kinematics import KinematicsCalculator
 from .dynamics import DynamicsCalculator
+from .thermodynamics import ThermodynamicsCalculator
 
-__all__ = ['KinematicsCalculator', 'DynamicsCalculator']
+__all__ = ['KinematicsCalculator', 'DynamicsCalculator', 'ThermodynamicsCalculator']

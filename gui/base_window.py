@@ -9,6 +9,7 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QFont
 from gui.kinematics_frame import KinematicsFrame
 from gui.dynamics_frame import DynamicsFrame
+from gui.thermodynamics_frame import ThermodynamicsFrame
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -171,7 +172,8 @@ class MainWindow(QMainWindow):
         self.dynamics_frame = DynamicsFrame(self.content_stack)
         self.content_stack.addWidget(self.dynamics_frame)
         
-        self.thermodynamics_frame = self.create_placeholder("Termodinámica\n(En desarrollo)")
+        # Módulo de termodinámica
+        self.thermodynamics_frame = ThermodynamicsFrame(self.content_stack)
         self.content_stack.addWidget(self.thermodynamics_frame)
         
         self.waves_frame = self.create_placeholder("Ondas\n(En desarrollo)")
