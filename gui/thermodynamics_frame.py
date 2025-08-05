@@ -43,7 +43,7 @@ class ThermodynamicsFrame(QWidget):
         
         title = QLabel("Termodinámica - Ley de los Gases Ideales")
         title.setFont(QFont("Arial", 16, QFont.Bold))
-        title.setStyleSheet("color: #2c3e50; padding: 10px 0px;")
+        title.setStyleSheet("color: #ecf0f1; padding: 10px 0px;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
@@ -63,8 +63,16 @@ class ThermodynamicsFrame(QWidget):
     def create_parameters_section(self):
         group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
         group.setStyleSheet("""
-            QGroupBox { font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; }
-            QGroupBox::title { color: #34495e; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px; }
+            QGroupBox { 
+                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; 
+                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
+            }
+            QGroupBox::title { 
+                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
+            }
+            QGroupBox QLabel {
+                color: #ecf0f1; font-size: 12px;
+            }
         """)
         
         layout = QGridLayout(group)
@@ -80,6 +88,17 @@ class ThermodynamicsFrame(QWidget):
         for i, (var_name, label_text) in enumerate(params_info):
             label = QLabel(label_text)
             line_edit = QLineEdit()
+            line_edit.setPlaceholderText("Valor conocido")
+            line_edit.setStyleSheet("""
+                QLineEdit {
+                    background-color: #2c3e50;
+                    color: #ecf0f1;
+                    border: 1px solid #4a627a;
+                    border-radius: 4px;
+                    padding: 6px;
+                }
+                QLineEdit:focus { border: 1px solid #8e44ad; }
+            """)
             self.input_fields[var_name] = line_edit
             layout.addWidget(label, i, 0)
             layout.addWidget(line_edit, i, 1)
@@ -94,9 +113,12 @@ class ThermodynamicsFrame(QWidget):
         self.clear_btn = QPushButton("Limpiar")
         
         button_style = """
-            QPushButton { background-color: #3498db; border: none; color: white; padding: 8px 16px; font-size: 12px; font-weight: bold; border-radius: 4px; min-width: 80px; }
-            QPushButton:hover { background-color: #2980b9; }
-            QPushButton:pressed { background-color: #21618c; }
+            QPushButton { 
+                background-color: #8e44ad; border: none; color: white; padding: 8px 16px; 
+                font-size: 12px; font-weight: bold; border-radius: 4px; min-width: 80px; 
+            }
+            QPushButton:hover { background-color: #9b59b6; }
+            QPushButton:pressed { background-color: #7d3c98; }
         """
         
         for btn in [self.calculate_btn, self.clear_btn]:
@@ -114,15 +136,23 @@ class ThermodynamicsFrame(QWidget):
     def create_results_section(self):
         group = QGroupBox("Resultados")
         group.setStyleSheet("""
-            QGroupBox { font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; }
-            QGroupBox::title { color: #34495e; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px; }
+            QGroupBox { 
+                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; 
+                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
+            }
+            QGroupBox::title { 
+                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px; 
+            }
         """)
         layout = QVBoxLayout(group)
         self.results_text = QTextEdit()
         self.results_text.setReadOnly(True)
         self.results_text.setMinimumHeight(150)
         self.results_text.setStyleSheet("""
-            QTextEdit { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 11px; color: #2c3e50; }
+            QTextEdit { 
+                background-color: #2c3e50; border: 1px solid #4a627a; border-radius: 4px; 
+                padding: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; color: #ecf0f1; 
+            }
         """)
         layout.addWidget(self.results_text)
         return group
@@ -150,24 +180,24 @@ class ThermodynamicsFrame(QWidget):
             calculated_var, calculated_val = list(calculated_values.items())[0]
             self.input_fields[calculated_var].setText(f"{calculated_val:.4f}")
 
-        text = "RESULTADOS DEL CÁLCULO\n"
-        text += "=" * 50 + "\n\n"
-        text += "Parámetros utilizados:\n"
-        text += "-" * 25 + "\n"
+        text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO</b><br>"
+        text += "=" * 50 + "<br><br>"
+        text += "<b>Parámetros utilizados:</b><br>"
+        text += "-" * 25 + "<br>"
         param_map = {'P': 'Presión (atm)', 'V': 'Volumen (L)', 'n': 'Moles (mol)', 'T': 'Temperatura (K)'}
         for key, value in self.results.get('input_params', {}).items():
             if value is not None:
-                text += f"  {param_map.get(key, key)}: {value}\n"
+                text += f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value}<br>"
 
-        text += "\nResultado calculado:\n"
-        text += "-" * 25 + "\n"
+        text += "<br><b>Resultado calculado:</b><br>"
+        text += "-" * 25 + "<br>"
         for key, value in calculated_values.items():
-            text += f"  {param_map.get(key, key)}: {value:.4f}\n"
+            text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{param_map.get(key, key)}</span>: {value:.4f}<br>"
 
-        text += "\nEcuación utilizada:\n"
-        text += "-" * 25 + "\n"
-        text += f"  • {self.results['equations'][0]}\n"
-        self.results_text.setPlainText(text)
+        text += "<br><b style='color:#9b59b6;'>Ecuación utilizada:</b><br>"
+        text += "-" * 25 + "<br>"
+        text += f"&nbsp;&nbsp;• {self.results['equations'][0]}<br>"
+        self.results_text.setHtml(text)
 
     def clear_all(self):
         for field in self.input_fields.values():

@@ -10,6 +10,7 @@ from PySide6.QtGui import QFont
 from gui.kinematics_frame import KinematicsFrame
 from gui.dynamics_frame import DynamicsFrame
 from gui.thermodynamics_frame import ThermodynamicsFrame
+from gui.waves_frame import WavesFrame
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -51,20 +52,20 @@ class MainWindow(QMainWindow):
         # Aplicar hoja de estilos CSS-like
         style_sheet = """
             QMainWindow {
-                background-color: #f5f5f5;
+                background-color: #2c3e50; /* Fondo principal oscuro */
             }
             
             QLabel#title {
                 font-size: 24px;
                 font-weight: bold;
-                color: #2c3e50;
+                color: #ecf0f1; /* Texto claro */
                 padding: 10px;
             }
             
             QPushButton#nav_button {
-                background-color: #3498db;
+                background-color: #34495e; /* Botones un poco más claros que el fondo */
                 border: none;
-                color: white;
+                color: #ecf0f1; /* Texto claro */
                 padding: 12px 24px;
                 font-size: 14px;
                 font-weight: bold;
@@ -73,27 +74,27 @@ class MainWindow(QMainWindow):
             }
             
             QPushButton#nav_button:hover {
-                background-color: #2980b9;
+                background-color: #4a627a;
             }
             
             QPushButton#nav_button:pressed {
-                background-color: #21618c;
+                background-color: #2c3e50;
             }
             
             QPushButton#nav_button:checked {
-                background-color: #e74c3c;
+                background-color: #8e44ad; /* Acento morado oscuro/púrpura */
             }
             
             QFrame#separator {
-                background-color: #bdc3c7;
+                background-color: #34495e; /* Separador oscuro */
                 max-height: 2px;
                 margin: 10px 0px;
             }
             
             QWidget#content_area {
-                background-color: white;
+                background-color: #34495e; /* Área de contenido oscura */
                 border-radius: 8px;
-                border: 1px solid #ddd;
+                border: 1px solid #2c3e50;
             }
         """
         self.setStyleSheet(style_sheet)
@@ -176,7 +177,7 @@ class MainWindow(QMainWindow):
         self.thermodynamics_frame = ThermodynamicsFrame(self.content_stack)
         self.content_stack.addWidget(self.thermodynamics_frame)
         
-        self.waves_frame = self.create_placeholder("Ondas\n(En desarrollo)")
+        self.waves_frame = WavesFrame(self.content_stack)
         self.content_stack.addWidget(self.waves_frame)
         
         self.electromagnetism_frame = self.create_placeholder("Electromagnetismo\n(En desarrollo)")
