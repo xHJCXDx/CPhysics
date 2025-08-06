@@ -1,6 +1,6 @@
 """
 Interfaz gráfica para el módulo de termodinámica
-Permite calcular problemas de la Ley de los Gases Ideales
+Permite calcular problemas de la Ley de los Gases Ideales y visualizar sus relaciones.
 """
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,

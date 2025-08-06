@@ -14,6 +14,7 @@ from utils.validators import InputValidator
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+import seaborn as sns
 
 class MplCanvas(FigureCanvas):
     """Widget de lienzo de Matplotlib personalizado para PySide6."""
@@ -309,7 +310,8 @@ class WavesFrame(QWidget):
             x = np.linspace(0, 2 * wavelength, 500)
             y = A * np.cos(k * x + phi)  # Ecuación y(x, t=0) = A cos(kx + φ)
 
-            self.canvas.axes.plot(x, y, color='#3498db', linewidth=2.5, label=f'Onda en t=0')
+            # Usar seaborn para un estilo mejorado
+            sns.lineplot(x=x, y=y, ax=self.canvas.axes, color='#3498db', linewidth=2.5, label='Onda en t=0')
             self.canvas.axes.set_xlabel('Posición (x) [m]', fontsize=12, color='#ecf0f1')
             self.canvas.axes.set_ylabel('Amplitud (y) [m]', fontsize=12, color='#ecf0f1')
             self.canvas.axes.set_title('Perfil de la Onda (y vs x)', fontsize=14, fontweight='bold', color='#ecf0f1')
