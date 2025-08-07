@@ -301,20 +301,24 @@ class DynamicsFrame(QWidget):
             ax = self.figure.add_subplot(1, 1, 1)
             
             plot_data = self.calculator.generate_plot_data(self.results)
-
-            # Para hacer el gráfico más ilustrativo, simulamos puntos de datos con algo de ruido
-            # y usamos regplot de seaborn para mostrar la tendencia lineal.
             x_data = plot_data['x_data']
             y_data = plot_data['y_data']
             
             # Añadir ruido gausiano para simular datos experimentales
             noise = np.random.normal(0, np.mean(np.abs(y_data)) * 0.08, len(x_data))
             y_scatter = y_data + noise
+
+            # --- Puedes elegir el tipo de gráfico seaborn aquí ---
+            # Gráfico de dispersión (puntos)
+            sns.scatterplot(x=x_data, y=y_scatter, ax=ax, color='#3498db', alpha=0.7, label='Datos experimentales')
             
-            # Usar regplot para mostrar los puntos y la línea de regresión
-            sns.regplot(x=x_data, y=y_scatter, ax=ax,
-                        scatter_kws={'color': '#3498db', 'alpha': 0.7},
-                        line_kws={'color': '#e74c3c', 'linewidth': 2.5, 'label': 'Ajuste lineal (F=ma)'})
+            # Línea de tendencia (opcional)
+            sns.lineplot(x=x_data, y=y_data, ax=ax, color='#e74c3c', linewidth=2.5, label='Relación teórica (F=ma)')
+            
+            # O si prefieres solo la regresión lineal:
+            # sns.regplot(x=x_data, y=y_scatter, ax=ax,
+            #             scatter_kws={'color': '#3498db', 'alpha': 0.7},
+            #             line_kws={'color': '#e74c3c', 'linewidth': 2.5, 'label': 'Ajuste lineal (F=ma)'})
 
             ax.set_xlabel(plot_data['x_label'], fontsize=12, color='#ecf0f1')
             ax.set_ylabel(plot_data['y_label'], fontsize=12, color='#ecf0f1')
