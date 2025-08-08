@@ -6,12 +6,12 @@ Contiene la navegación y el contenedor para los diferentes módulos
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                                 QPushButton, QLabel, QStackedWidget, QFrame)
 from PySide6.QtCore import Qt, QSize
+from gui.electromagnetism_frame import ElectromagnetismFrame
 from PySide6.QtGui import QFont
 from gui.kinematics_frame import KinematicsFrame
 from gui.dynamics_frame import DynamicsFrame
 from gui.thermodynamics_frame import ThermodynamicsFrame
 from gui.waves_frame import WavesFrame
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -180,7 +180,7 @@ class MainWindow(QMainWindow):
         self.waves_frame = WavesFrame(self.content_stack)
         self.content_stack.addWidget(self.waves_frame)
         
-        self.electromagnetism_frame = self.create_placeholder("Electromagnetismo\n(En desarrollo)")
+        self.electromagnetism_frame = ElectromagnetismFrame(self.content_stack)
         self.content_stack.addWidget(self.electromagnetism_frame)
     
     def create_placeholder(self, text, parent=None):
