@@ -30,6 +30,8 @@ class DynamicsFrame(QWidget):
         self.input_fields = {}
         self.friction_checkbox = None
         self.mu_input = None
+        self.incline_checkbox = None
+        self.angle_input = None
         
         self.setup_ui()
     
@@ -71,6 +73,9 @@ class DynamicsFrame(QWidget):
         
         params_group = self.create_parameters_section()
         layout.addWidget(params_group)
+        
+        incline_group = self.create_incline_section()
+        layout.addWidget(incline_group)
         
         friction_group = self.create_friction_section()
         layout.addWidget(friction_group)
@@ -165,6 +170,44 @@ class DynamicsFrame(QWidget):
         self.friction_checkbox = group
         group.toggled.connect(self.mu_input.setEnabled)
         self.mu_input.setEnabled(False)
+
+        return group
+
+    def create_incline_section(self):
+        """Crear sección para el plano inclinado opcional."""
+        group = QGroupBox("Plano Inclinado (Opcional)")
+        group.setCheckable(True)
+        group.setChecked(False)
+        group.setStyleSheet("""
+            QGroupBox {
+                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px;
+                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
+            }
+            QGroupBox::title {
+                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
+            }
+            QGroupBox QLabel { color: #ecf0f1; font-size: 12px; }
+        """)
+
+        layout = QGridLayout(group)
+        layout.setSpacing(8)
+
+        angle_label = QLabel("Ángulo del Plano (θ}°):")
+        self.angle_input = QLineEdit()
+        self.angle_input.setPlaceholderText("e.g., 30")
+        self.angle_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #2c3e50; color: #ecf0f1;
+                border: 1px solid #4a627a; border-radius: 4px; padding: 6px;
+            }
+            QLineEdit:focus { border: 1px solid #8e44ad; }
+        """)
+        layout.addWidget(angle_label, 0, 0)
+        layout.addWidget(self.angle_input, 0, 1)
+
+        self.incline_checkbox = group
+        group.toggled.connect(self.angle_input.setEnabled)
+        self.angle_input.setEnabled(False)
 
         return group
 
@@ -285,13 +328,23 @@ class DynamicsFrame(QWidget):
                 if mu < 0:
                     QMessageBox.warning(self, "Valor Inválido", "El coeficiente de fricción no puede ser negativo.")
                     mu = None # Treat as no friction
-        return params, mu
+
+        angle = None
+        if self.incline_checkbox and self.incline_checkbox.isChecked():
+            angle_text = self.angle_input.text().strip()
+            if angle_text and self.validator.is_valid_number(angle_text):
+                angle = float(angle_text)
+                if not (0 <= angle <= 90):
+                    QMessageBox.warning(self, "Valor Inválido", "El ángulo debe estar entre 0 y 90 grados.")
+                    angle = None
+
+        return params, mu, angle
 
     def calculate(self):
         """Realizar cálculos de la Segunda Ley de Newton"""
         try:
-            params, mu = self.get_input_values()
-            self.results = self.calculator.calculate_newton_second_law(params, mu=mu)
+            params, mu, angle = self.get_input_values()
+            self.results = self.calculator.calculate_newton_second_law(params, mu=mu, angle=angle)
             self.display_results()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
@@ -314,7 +367,8 @@ class DynamicsFrame(QWidget):
             'f': 'Fuerza Aplicada (N)', 
             'm': 'Masa (kg)', 
             'a': 'Aceleración (m/s²)',
-            'mu': 'Coef. Fricción (μ)'
+            'mu': 'Coef. Fricción (μ)',
+            'angle': 'Ángulo del Plano (°)'
         }
         for key, value in self.results.get('input_params', {}).items():
             if value is not None:
@@ -324,6 +378,12 @@ class DynamicsFrame(QWidget):
         text += "-" * 25 + "<br>"
         for key, value in calculated_values.items():
             text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{param_map.get(key, key)}</span>: {value:.4f}<br>"
+
+        normal_force = self.results.get('normal_force')
+        if normal_force is not None:
+            text += "<br><b>Fuerza Normal:</b><br>"
+            text += "-" * 25 + "<br>"
+            text += f"&nbsp;&nbsp;• F_normal: {normal_force:.4f} N<br>"
 
         friction_force = self.results.get('friction_force')
         if friction_force is not None:
@@ -345,6 +405,10 @@ class DynamicsFrame(QWidget):
             self.mu_input.clear()
         if self.friction_checkbox:
             self.friction_checkbox.setChecked(False)
+        if self.angle_input:
+            self.angle_input.clear()
+        if self.incline_checkbox:
+            self.incline_checkbox.setChecked(False)
         
         self.results = {}
         self.results_text.clear()
