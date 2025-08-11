@@ -94,11 +94,55 @@ class DynamicsCalculator:
         if friction_force is not None:
             final_results['friction_force'] = friction_force
         if use_friction:
-            final_results['input_params']['mu'] = mu
+            final_results['input_params']['mu'] = mu 
         if use_incline:
             final_results['input_params']['angle'] = angle
         
         return final_results
+
+    def calculate_work(self, force, distance, angle=0):
+        if force is None or distance is None:
+            raise ValueError("La fuerza y la distancia son requeridas.")
+        if not all(isinstance(i, (int, float)) for i in [force, distance, angle]):
+            raise TypeError("Los valores deben ser numéricos.")
+        
+        theta = np.deg2rad(angle)
+        work = force * distance * np.cos(theta)
+        
+        return {
+            'work': work,
+            'equation': "W = F × d × cos(θ)"
+        }
+
+    def calculate_kinetic_energy(self, mass, velocity):
+        if mass is None or velocity is None:
+            raise ValueError("La masa y la velocidad son requeridas.")
+        if not all(isinstance(i, (int, float)) for i in [mass, velocity]):
+            raise TypeError("Los valores deben ser numéricos.")
+        if mass <= 0:
+            raise ValueError("La masa debe ser un valor positivo.")
+            
+        kinetic_energy = 0.5 * mass * velocity**2
+        
+        return {
+            'kinetic_energy': kinetic_energy,
+            'equation': "KE = 0.5 × m × v²"
+        }
+
+    def calculate_potential_energy(self, mass, height):
+        if mass is None or height is None:
+            raise ValueError("La masa y la altura son requeridas.")
+        if not all(isinstance(i, (int, float)) for i in [mass, height]):
+            raise TypeError("Los valores deben ser numéricos.")
+        if mass <= 0:
+            raise ValueError("La masa debe ser un valor positivo.")
+
+        potential_energy = mass * self.g * height
+        
+        return {
+            'potential_energy': potential_energy,
+            'equation': "PE = m × g × h"
+        }
 
     def generate_plot_data(self, results, num_points=100):
         input_params = results['input_params']

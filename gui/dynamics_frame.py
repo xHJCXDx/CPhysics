@@ -28,6 +28,7 @@ class DynamicsFrame(QWidget):
         
         self.results = {}
         self.input_fields = {}
+        self.energy_input_fields = {}
         self.friction_checkbox = None
         self.mu_input = None
         self.incline_checkbox = None
@@ -83,6 +84,9 @@ class DynamicsFrame(QWidget):
         buttons_layout = self.create_action_buttons()
         layout.addLayout(buttons_layout)
         
+        energy_group = self.create_energy_section()
+        layout.addWidget(energy_group)
+
         results_group = self.create_results_section()
         layout.addWidget(results_group)
         
@@ -156,7 +160,7 @@ class DynamicsFrame(QWidget):
 
         mu_label = QLabel("Coeficiente de Fricción (μ):")
         self.mu_input = QLineEdit()
-        self.mu_input.setPlaceholderText("e.g., 0.2")
+        self.mu_input.setPlaceholderText("ex. 0.2")
         self.mu_input.setStyleSheet("""
             QLineEdit {
                 background-color: #2c3e50; color: #ecf0f1;
@@ -192,9 +196,9 @@ class DynamicsFrame(QWidget):
         layout = QGridLayout(group)
         layout.setSpacing(8)
 
-        angle_label = QLabel("Ángulo del Plano (θ}°):")
+        angle_label = QLabel("Ángulo del Plano (θ°):")
         self.angle_input = QLineEdit()
-        self.angle_input.setPlaceholderText("e.g., 30")
+        self.angle_input.setPlaceholderText("ex. 30")
         self.angle_input.setStyleSheet("""
             QLineEdit {
                 background-color: #2c3e50; color: #ecf0f1;
@@ -216,8 +220,8 @@ class DynamicsFrame(QWidget):
         layout = QHBoxLayout()
         layout.setSpacing(10)
         
-        self.calculate_btn = QPushButton("Calcular")
-        self.clear_btn = QPushButton("Limpiar")
+        self.calculate_btn = QPushButton("Calcular Ley de Newton")
+        self.clear_btn = QPushButton("Limpiar Todo")
         self.plot_btn = QPushButton("Graficar")
         
         button_style = '''
@@ -231,7 +235,7 @@ class DynamicsFrame(QWidget):
         for btn in [self.calculate_btn, self.clear_btn, self.plot_btn]:
             btn.setStyleSheet(button_style)
         
-        self.calculate_btn.clicked.connect(self.calculate)
+        self.calculate_btn.clicked.connect(self.calculate_newton)
         self.clear_btn.clicked.connect(self.clear_all)
         self.plot_btn.clicked.connect(self.plot_results)
         
@@ -241,7 +245,104 @@ class DynamicsFrame(QWidget):
         layout.addStretch()
         
         return layout
-    
+
+    def create_energy_section(self):
+        """Crear sección para cálculos de Trabajo y Energía."""
+        main_group = QGroupBox("Trabajo y Energía")
+        main_group.setStyleSheet('''
+            QGroupBox { 
+                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 10px; 
+                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
+            }
+            QGroupBox::title { 
+                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
+            }
+        ''')
+        main_layout = QVBoxLayout(main_group)
+        main_layout.setSpacing(10)
+
+        # --- Sub-sección de Trabajo ---
+        work_group = QGroupBox("Calcular Trabajo (W)")
+        work_layout = QGridLayout(work_group)
+        work_params = {
+            'work_force': 'Fuerza (N):',
+            'work_distance': 'Distancia (m):',
+            'work_angle': 'Ángulo (θ°):',
+        }
+        for i, (key, label) in enumerate(work_params.items()):
+            work_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("Valor")
+            self.energy_input_fields[key] = line_edit
+            work_layout.addWidget(line_edit, i, 1)
+        
+        calc_work_btn = QPushButton("Calcular Trabajo")
+        calc_work_btn.clicked.connect(self.calculate_work)
+        work_layout.addWidget(calc_work_btn, len(work_params), 0, 1, 2)
+        main_layout.addWidget(work_group)
+
+        # --- Sub-sección de Energía Cinética ---
+        ke_group = QGroupBox("Calcular Energía Cinética (KE)")
+        ke_layout = QGridLayout(ke_group)
+        ke_params = {
+            'ke_mass': 'Masa (kg):',
+            'ke_velocity': 'Velocidad (m/s):',
+        }
+        for i, (key, label) in enumerate(ke_params.items()):
+            ke_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("Valor")
+            self.energy_input_fields[key] = line_edit
+            ke_layout.addWidget(line_edit, i, 1)
+
+        calc_ke_btn = QPushButton("Calcular Energía Cinética")
+        calc_ke_btn.clicked.connect(self.calculate_kinetic_energy)
+        ke_layout.addWidget(calc_ke_btn, len(ke_params), 0, 1, 2)
+        main_layout.addWidget(ke_group)
+
+        # --- Sub-sección de Energía Potencial ---
+        pe_group = QGroupBox("Calcular Energía Potencial (PE)")
+        pe_layout = QGridLayout(pe_group)
+        pe_params = {
+            'pe_mass': 'Masa (kg):',
+            'pe_height': 'Altura (m):',
+        }
+        for i, (key, label) in enumerate(pe_params.items()):
+            pe_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("Valor")
+            self.energy_input_fields[key] = line_edit
+            pe_layout.addWidget(line_edit, i, 1)
+
+        calc_pe_btn = QPushButton("Calcular Energía Potencial")
+        calc_pe_btn.clicked.connect(self.calculate_potential_energy)
+        pe_layout.addWidget(calc_pe_btn, len(pe_params), 0, 1, 2)
+        main_layout.addWidget(pe_group)
+
+        # Estilo común para QLineEdit y QPushButton dentro de esta sección
+        style = '''
+            QLineEdit {
+                background-color: #2c3e50; color: #ecf0f1;
+                border: 1px solid #4a627a; border-radius: 4px; padding: 6px;
+            }
+            QLineEdit:focus { border: 1px solid #8e44ad; }
+            QPushButton { 
+                background-color: #16a085; border: none; color: white; padding: 8px; 
+                font-size: 12px; font-weight: bold; border-radius: 4px; margin-top: 5px;
+            }
+            QPushButton:hover { background-color: #1abc9c; }
+            QPushButton:pressed { background-color: #148f77; }
+            QGroupBox { 
+                font-weight: bold; font-size: 12px; padding-top: 8px; margin-top: 5px; 
+                color: #bdc3c7; border: 1px solid #3e5062; border-radius: 5px;
+            }
+            QGroupBox::title { color: #bdc3c7; }
+            QLabel { font-size: 12px; color: #ecf0f1; }
+        '''
+        main_group.setStyleSheet(style)
+
+        return main_group
+
     def create_results_section(self):
         """Crear sección de resultados"""
         group = QGroupBox("Resultados")
@@ -340,16 +441,61 @@ class DynamicsFrame(QWidget):
 
         return params, mu, angle
 
-    def calculate(self):
+    def calculate_newton(self):
         """Realizar cálculos de la Segunda Ley de Newton"""
         try:
             params, mu, angle = self.get_input_values()
             self.results = self.calculator.calculate_newton_second_law(params, mu=mu, angle=angle)
-            self.display_results()
+            self.display_newton_results()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
 
-    def display_results(self):
+    def get_energy_input_value(self, key):
+        field = self.energy_input_fields.get(key)
+        if field:
+            text = field.text().strip()
+            if text and self.validator.is_valid_number(text):
+                return float(text)
+        return None
+
+    def calculate_work(self):
+        try:
+            force = self.get_energy_input_value('work_force')
+            distance = self.get_energy_input_value('work_distance')
+            angle = self.get_energy_input_value('work_angle') or 0
+            
+            result = self.calculator.calculate_work(force, distance, angle)
+            self.display_energy_result("Trabajo", result['work'], result['equation'], {
+                'Fuerza': force, 'Distancia': distance, 'Ángulo': angle
+            })
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de trabajo:\n{str(e)}")
+
+    def calculate_kinetic_energy(self):
+        try:
+            mass = self.get_energy_input_value('ke_mass')
+            velocity = self.get_energy_input_value('ke_velocity')
+            
+            result = self.calculator.calculate_kinetic_energy(mass, velocity)
+            self.display_energy_result("Energía Cinética", result['kinetic_energy'], result['equation'], {
+                'Masa': mass, 'Velocidad': velocity
+            })
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de energía cinética:\n{str(e)}")
+
+    def calculate_potential_energy(self):
+        try:
+            mass = self.get_energy_input_value('pe_mass')
+            height = self.get_energy_input_value('pe_height')
+            
+            result = self.calculator.calculate_potential_energy(mass, height)
+            self.display_energy_result("Energía Potencial", result['potential_energy'], result['equation'], {
+                'Masa': mass, 'Altura': height
+            })
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de energía potencial:\n{str(e)}")
+
+    def display_newton_results(self):
         """Mostrar resultados en el área de texto y en el campo de entrada correspondiente"""
         if not self.results: return
 
@@ -358,7 +504,7 @@ class DynamicsFrame(QWidget):
             calculated_var, calculated_val = list(calculated_values.items())[0]
             self.input_fields[calculated_var].setText(f"{calculated_val:.4f}")
 
-        text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO</b><br>"
+        text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO (2ª Ley de Newton)</b><br>"
         text += "=" * 50 + "<br><br>"
 
         text += "<b>Parámetros utilizados:</b><br>"
@@ -397,9 +543,24 @@ class DynamicsFrame(QWidget):
             text += f"&nbsp;&nbsp;• {eq}<br>"
         self.results_text.setHtml(text)
 
+    def display_energy_result(self, title, value, equation, params):
+        text = f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>"
+        text += "=" * 50 + "<br><br>"
+
+        text += "<b>Parámetros:</b><br>"
+        for name, val in params.items():
+            text += f"&nbsp;&nbsp;• {name}: {val}<br>"
+        
+        text += f"<br><b>Ecuación:</b><br>&nbsp;&nbsp;• {equation}<br>"
+        text += f"<br><b>Resultado:</b><br>&nbsp;&nbsp;• <span style='color:#2ecc71;'>{title}</span>: {value:.4f} Joules<br>"
+        
+        self.results_text.setHtml(text)
+
     def clear_all(self):
         """Limpiar todos los campos y resultados"""
         for field in self.input_fields.values():
+            field.clear()
+        for field in self.energy_input_fields.values():
             field.clear()
         if self.mu_input:
             self.mu_input.clear()
@@ -419,7 +580,7 @@ class DynamicsFrame(QWidget):
     def plot_results(self):
         """Generar gráficos de los resultados"""
         if not self.results:
-            QMessageBox.warning(self, "Advertencia", "Primero debe realizar un cálculo")
+            QMessageBox.warning(self, "Advertencia", "Primero debe realizar un cálculo de la Ley de Newton")
             return
 
         try:
