@@ -144,6 +144,44 @@ class DynamicsCalculator:
             'equation': "PE = m × g × h"
         }
 
+    def calculate_impulse(self, force, time, impulse):
+        params = {'force': force, 'time': time, 'impulse': impulse}
+        provided_params = [k for k, v in params.items() if v is not None]
+
+        if len(provided_params) != 2:
+            raise ValueError("Debe proporcionar exactamente dos de los tres parámetros (fuerza, tiempo, impulso).")
+
+        if 'impulse' not in provided_params:
+            result = force * time
+            return {'impulse': result, 'equation': "I = F × t"}
+        elif 'force' not in provided_params:
+            if time == 0: raise ValueError("El tiempo no puede ser cero.")
+            result = impulse / time
+            return {'force': result, 'equation': "F = I / t"}
+        elif 'time' not in provided_params:
+            if force == 0: raise ValueError("La fuerza no puede ser cero.")
+            result = impulse / force
+            return {'time': result, 'equation': "t = I / F"}
+
+    def calculate_linear_momentum(self, mass, velocity, momentum):
+        params = {'mass': mass, 'velocity': velocity, 'momentum': momentum}
+        provided_params = [k for k, v in params.items() if v is not None]
+
+        if len(provided_params) != 2:
+            raise ValueError("Debe proporcionar exactamente dos de los tres parámetros (masa, velocidad, momento).")
+
+        if 'momentum' not in provided_params:
+            result = mass * velocity
+            return {'momentum': result, 'equation': "p = m × v"}
+        elif 'mass' not in provided_params:
+            if velocity == 0: raise ValueError("La velocidad no puede ser cero.")
+            result = momentum / velocity
+            return {'mass': result, 'equation': "m = p / v"}
+        elif 'velocity' not in provided_params:
+            if mass == 0: raise ValueError("La masa no puede ser cero.")
+            result = momentum / mass
+            return {'velocity': result, 'equation': "v = p / m"}
+
     def generate_plot_data(self, results, num_points=100):
         input_params = results['input_params']
         calculated_values = results['calculated_values']

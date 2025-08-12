@@ -29,6 +29,7 @@ class DynamicsFrame(QWidget):
         self.results = {}
         self.input_fields = {}
         self.energy_input_fields = {}
+        self.momentum_input_fields = {}
         self.friction_checkbox = None
         self.mu_input = None
         self.incline_checkbox = None
@@ -86,6 +87,9 @@ class DynamicsFrame(QWidget):
         
         energy_group = self.create_energy_section()
         layout.addWidget(energy_group)
+
+        momentum_group = self.create_momentum_section()
+        layout.addWidget(momentum_group)
 
         results_group = self.create_results_section()
         layout.addWidget(results_group)
@@ -343,6 +347,85 @@ class DynamicsFrame(QWidget):
 
         return main_group
 
+    def create_momentum_section(self):
+        """Crear sección para cálculos de Impulso y Momento Lineal."""
+        main_group = QGroupBox("Impulso y Momento Lineal")
+        main_group.setStyleSheet('''
+            QGroupBox { 
+                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 10px; 
+                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
+            }
+            QGroupBox::title { 
+                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
+            }
+        ''')
+        main_layout = QVBoxLayout(main_group)
+        main_layout.setSpacing(10)
+
+        # --- Sub-sección de Impulso ---
+        impulse_group = QGroupBox("Calcular Impulso (I)")
+        impulse_layout = QGridLayout(impulse_group)
+        impulse_params = {
+            'impulse_force': 'Fuerza (N):',
+            'impulse_time': 'Tiempo (s):',
+            'impulse_impulse': 'Impulso (N·s):',
+        }
+        for i, (key, label) in enumerate(impulse_params.items()):
+            impulse_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("Dejar en blanco para calcular")
+            self.momentum_input_fields[key] = line_edit
+            impulse_layout.addWidget(line_edit, i, 1)
+        
+        calc_impulse_btn = QPushButton("Calcular Impulso")
+        calc_impulse_btn.clicked.connect(self.calculate_impulse)
+        impulse_layout.addWidget(calc_impulse_btn, len(impulse_params), 0, 1, 2)
+        main_layout.addWidget(impulse_group)
+
+        # --- Sub-sección de Momento Lineal ---
+        momentum_group = QGroupBox("Calcular Momento Lineal (p)")
+        momentum_layout = QGridLayout(momentum_group)
+        momentum_params = {
+            'momentum_mass': 'Masa (kg):',
+            'momentum_velocity': 'Velocidad (m/s):',
+            'momentum_momentum': 'Momento (kg·m/s):',
+        }
+        for i, (key, label) in enumerate(momentum_params.items()):
+            momentum_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("Dejar en blanco para calcular")
+            self.momentum_input_fields[key] = line_edit
+            momentum_layout.addWidget(line_edit, i, 1)
+
+        calc_momentum_btn = QPushButton("Calcular Momento Lineal")
+        calc_momentum_btn.clicked.connect(self.calculate_linear_momentum)
+        momentum_layout.addWidget(calc_momentum_btn, len(momentum_params), 0, 1, 2)
+        main_layout.addWidget(momentum_group)
+
+        # Estilo común para QLineEdit y QPushButton dentro de esta sección
+        style = '''
+            QLineEdit {
+                background-color: #2c3e50; color: #ecf0f1;
+                border: 1px solid #4a627a; border-radius: 4px; padding: 6px;
+            }
+            QLineEdit:focus { border: 1px solid #8e44ad; }
+            QPushButton { 
+                background-color: #16a085; border: none; color: white; padding: 8px; 
+                font-size: 12px; font-weight: bold; border-radius: 4px; margin-top: 5px;
+            }
+            QPushButton:hover { background-color: #1abc9c; }
+            QPushButton:pressed { background-color: #148f77; }
+            QGroupBox { 
+                font-weight: bold; font-size: 12px; padding-top: 8px; margin-top: 5px; 
+                color: #bdc3c7; border: 1px solid #3e5062; border-radius: 5px;
+            }
+            QGroupBox::title { color: #bdc3c7; }
+            QLabel { font-size: 12px; color: #ecf0f1; }
+        '''
+        main_group.setStyleSheet(style)
+
+        return main_group
+
     def create_results_section(self):
         """Crear sección de resultados"""
         group = QGroupBox("Resultados")
@@ -450,13 +533,19 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
 
-    def get_energy_input_value(self, key):
-        field = self.energy_input_fields.get(key)
+    def get_input_value(self, field_dict, key):
+        field = field_dict.get(key)
         if field:
             text = field.text().strip()
             if text and self.validator.is_valid_number(text):
                 return float(text)
         return None
+
+    def get_energy_input_value(self, key):
+        return self.get_input_value(self.energy_input_fields, key)
+
+    def get_momentum_input_value(self, key):
+        return self.get_input_value(self.momentum_input_fields, key)
 
     def calculate_work(self):
         try:
@@ -543,16 +632,150 @@ class DynamicsFrame(QWidget):
             text += f"&nbsp;&nbsp;• {eq}<br>"
         self.results_text.setHtml(text)
 
+    def calculate_impulse(self):
+        try:
+            force = self.get_momentum_input_value('impulse_force')
+            time = self.get_momentum_input_value('impulse_time')
+            impulse = self.get_momentum_input_value('impulse_impulse')
+
+            result = self.calculator.calculate_impulse(force, time, impulse)
+            
+            # Determine which value was calculated and update the corresponding input field
+            if 'impulse' in result:
+                self.momentum_input_fields['impulse_impulse'].setText(f"{result['impulse']:.4f}")
+                self.display_momentum_result("Impulso", result['impulse'], result['equation'], {
+                    'Fuerza': force, 'Tiempo': time, 'Impulso': None
+                })
+            elif 'force' in result:
+                self.momentum_input_fields['impulse_force'].setText(f"{result['force']:.4f}")
+                self.display_momentum_result("Fuerza (Impulso)", result['force'], result['equation'], {
+                    'Fuerza': None, 'Tiempo': time, 'Impulso': impulse
+                })
+            elif 'time' in result:
+                self.momentum_input_fields['impulse_time'].setText(f"{result['time']:.4f}")
+                self.display_momentum_result("Tiempo (Impulso)", result['time'], result['equation'], {
+                    'Fuerza': force, 'Tiempo': None, 'Impulso': impulse
+                })
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de impulso:\n{str(e)}")
+
+    def calculate_linear_momentum(self):
+        try:
+            mass = self.get_momentum_input_value('momentum_mass')
+            velocity = self.get_momentum_input_value('momentum_velocity')
+            momentum = self.get_momentum_input_value('momentum_momentum')
+
+            result = self.calculator.calculate_linear_momentum(mass, velocity, momentum)
+
+            # Determine which value was calculated and update the corresponding input field
+            if 'momentum' in result:
+                self.momentum_input_fields['momentum_momentum'].setText(f"{result['momentum']:.4f}")
+                self.display_momentum_result("Momento Lineal", result['momentum'], result['equation'], {
+                    'Masa': mass, 'Velocidad': velocity, 'Momento': None
+                })
+            elif 'mass' in result:
+                self.momentum_input_fields['momentum_mass'].setText(f"{result['mass']:.4f}")
+                self.display_momentum_result("Masa (Momento)", result['mass'], result['equation'], {
+                    'Masa': None, 'Velocidad': velocity, 'Momento': momentum
+                })
+            elif 'velocity' in result:
+                self.momentum_input_fields['momentum_velocity'].setText(f"{result['velocity']:.4f}")
+                self.display_momentum_result("Velocidad (Momento)", result['velocity'], result['equation'], {
+                    'Masa': mass, 'Velocidad': None, 'Momento': momentum
+                })
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de momento lineal:\n{str(e)}")
+
+    def display_newton_results(self):
+        """Mostrar resultados en el área de texto y en el campo de entrada correspondiente"""
+        if not self.results: return
+
+        calculated_values = self.results.get('calculated_values', {})
+        if calculated_values:
+            calculated_var, calculated_val = list(calculated_values.items())[0]
+            self.input_fields[calculated_var].setText(f"{calculated_val:.4f}")
+
+        text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO (2ª Ley de Newton)</b><br>"
+        text += "=" * 50 + "<br><br>"
+
+        text += "<b>Parámetros utilizados:</b><br>"
+        text += "-" * 25 + "<br>"
+        param_map = {
+            'f': 'Fuerza Aplicada (N)', 
+            'm': 'Masa (kg)', 
+            'a': 'Aceleración (m/s²)',
+            'mu': 'Coef. Fricción (μ)',
+            'angle': 'Ángulo del Plano (°)'
+        }
+        for key, value in self.results.get('input_params', {}).items():
+            if value is not None:
+                text += f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value}<br>"
+
+        text += "<br><b>Resultado calculado:</b><br>"
+        text += "-" * 25 + "<br>"
+        for key, value in calculated_values.items():
+            text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{param_map.get(key, key)}</span>: {value:.4f}<br>"
+
+        normal_force = self.results.get('normal_force')
+        if normal_force is not None:
+            text += "<br><b>Fuerza Normal:</b><br>"
+            text += "-" * 25 + "<br>"
+            text += f"&nbsp;&nbsp;• F_normal: {normal_force:.4f} N<br>"
+
+        friction_force = self.results.get('friction_force')
+        if friction_force is not None:
+            text += "<br><b>Fuerza de Fricción:</b><br>"
+            text += "-" * 25 + "<br>"
+            text += f"&nbsp;&nbsp;• F_fricción: {friction_force:.4f} N<br>"
+
+        text += "<br><b style='color:#9b59b6;'>Ecuaciones utilizadas:</b><br>"
+        text += "-" * 25 + "<br>"
+        for eq in self.results.get('equations', []):
+            text += f"&nbsp;&nbsp;• {eq}<br>"
+        self.results_text.setHtml(text)
+
     def display_energy_result(self, title, value, equation, params):
         text = f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>"
         text += "=" * 50 + "<br><br>"
 
         text += "<b>Parámetros:</b><br>"
         for name, val in params.items():
-            text += f"&nbsp;&nbsp;• {name}: {val}<br>"
+            if val is not None:
+                text += f"&nbsp;&nbsp;• {name}: {val}<br>"
         
         text += f"<br><b>Ecuación:</b><br>&nbsp;&nbsp;• {equation}<br>"
         text += f"<br><b>Resultado:</b><br>&nbsp;&nbsp;• <span style='color:#2ecc71;'>{title}</span>: {value:.4f} Joules<br>"
+        
+        self.results_text.setHtml(text)
+
+    def display_momentum_result(self, title, value, equation, params):
+        text = f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>"
+        text += "=" * 50 + "<br><br>"
+
+        text += "<b>Parámetros:</b><br>"
+        for name, val in params.items():
+            if val is not None:
+                text += f"&nbsp;&nbsp;• {name}: {val}<br>"
+        
+        text += f"<br><b>Ecuación:</b><br>&nbsp;&nbsp;• {equation}<br>"
+        
+        unit = ""
+        if "Impulso" in title:
+            unit = "N·s"
+        elif "Momento" in title:
+            unit = "kg·m/s"
+        elif "Fuerza" in title:
+            unit = "N"
+        elif "Tiempo" in title:
+            unit = "s"
+        elif "Masa" in title:
+            unit = "kg"
+        elif "Velocidad" in title:
+            unit = "m/s"
+
+        text += f"<br><b>Resultado:</b><br>&nbsp;&nbsp;• <span style='color:#2ecc71;'>{title}</span>: {value:.4f} {unit}<br>"
         
         self.results_text.setHtml(text)
 
@@ -561,6 +784,8 @@ class DynamicsFrame(QWidget):
         for field in self.input_fields.values():
             field.clear()
         for field in self.energy_input_fields.values():
+            field.clear()
+        for field in self.momentum_input_fields.values():
             field.clear()
         if self.mu_input:
             self.mu_input.clear()
