@@ -601,6 +601,7 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de energía potencial:\n{str(e)}")
 
+    #Display Results
     def display_newton_results(self):
         """Mostrar resultados en el área de texto y en el campo de entrada correspondiente"""
         if not self.results: return
@@ -649,6 +650,7 @@ class DynamicsFrame(QWidget):
             text += f"&nbsp;&nbsp;• {eq}<br>"
         self.results_text.setHtml(text)
 
+    #Display Energy Result
     def calculate_impulse(self):
         try:
             force = self.get_momentum_input_value('impulse_force')
@@ -677,6 +679,7 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de impulso:\n{str(e)}")
 
+    #Calculate Linear Momentum
     def calculate_linear_momentum(self):
         try:
             mass = self.get_momentum_input_value('momentum_mass')
@@ -705,6 +708,7 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de momento lineal:\n{str(e)}")
 
+    # Display Newton's Results
     def display_newton_results(self):
         """Mostrar resultados en el área de texto y en el campo de entrada correspondiente"""
         if not self.results: return
@@ -753,6 +757,7 @@ class DynamicsFrame(QWidget):
             text += f"&nbsp;&nbsp;• {eq}<br>"
         self.results_text.setHtml(text)
 
+    # Display Energy Result
     def display_energy_result(self, title, value, equation, params):
         text = f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>"
         text += "=" * 50 + "<br><br>"
@@ -767,6 +772,7 @@ class DynamicsFrame(QWidget):
         
         self.results_text.setHtml(text)
 
+    # Display Momentum Result
     def display_momentum_result(self, title, value, equation, params):
         text = f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>"
         text += "=" * 50 + "<br><br>"
@@ -796,6 +802,7 @@ class DynamicsFrame(QWidget):
         
         self.results_text.setHtml(text)
 
+    # Clear All Fields and Results
     def clear_all(self):
         """Limpiar todos los campos y resultados"""
         for field in self.input_fields.values():
@@ -819,6 +826,7 @@ class DynamicsFrame(QWidget):
         if hasattr(self, 'figure'):
             self.initialize_plot()
 
+    # Plot Results
     def plot_results(self):
         """Generar gráficos de los resultados"""
         if not self.results:
