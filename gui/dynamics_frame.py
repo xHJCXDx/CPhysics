@@ -98,6 +98,7 @@ class DynamicsFrame(QWidget):
         
         return scroll_area
     
+    # Create Parameters Section
     def create_parameters_section(self):
         """Crear sección de parámetros"""
         group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
@@ -142,7 +143,8 @@ class DynamicsFrame(QWidget):
             layout.addWidget(line_edit, i, 1)
         
         return group
-
+    
+    # Create Friction and Incline Sections
     def create_friction_section(self):
         """Crear sección para la fricción opcional."""
         group = QGroupBox("Fricción (Opcional)")
@@ -181,6 +183,7 @@ class DynamicsFrame(QWidget):
 
         return group
 
+    # Create Incline Section
     def create_incline_section(self):
         """Crear sección para el plano inclinado opcional."""
         group = QGroupBox("Plano Inclinado (Opcional)")
@@ -219,6 +222,7 @@ class DynamicsFrame(QWidget):
 
         return group
 
+    # Create Action Buttons
     def create_action_buttons(self):
         """Crear botones de acción"""
         layout = QHBoxLayout()
@@ -250,6 +254,7 @@ class DynamicsFrame(QWidget):
         
         return layout
 
+    # Section for Energy Calculations
     def create_energy_section(self):
         """Crear sección para cálculos de Trabajo y Energía."""
         main_group = QGroupBox("Trabajo y Energía")
@@ -347,6 +352,7 @@ class DynamicsFrame(QWidget):
 
         return main_group
 
+    # Section for Momentum Calculations
     def create_momentum_section(self):
         """Crear sección para cálculos de Impulso y Momento Lineal."""
         main_group = QGroupBox("Impulso y Momento Lineal")
@@ -426,6 +432,7 @@ class DynamicsFrame(QWidget):
 
         return main_group
 
+    # Section for Results Display
     def create_results_section(self):
         """Crear sección de resultados"""
         group = QGroupBox("Resultados")
@@ -454,6 +461,7 @@ class DynamicsFrame(QWidget):
         layout.addWidget(self.results_text)
         return group
 
+    # Section for Plotting
     def create_plot_panel(self):
         """Crear panel de gráficos"""
         container = QWidget()
@@ -476,8 +484,9 @@ class DynamicsFrame(QWidget):
         
         self.initialize_plot()
 
-        return container
-        
+        return container    
+
+    # Initialize Plot
     def initialize_plot(self):
         """Inicializa o resetea el gráfico a su estado vacío por defecto."""
         self.figure.clear()
@@ -497,6 +506,7 @@ class DynamicsFrame(QWidget):
         ax.set_ylabel("")
         self.canvas.draw()
 
+    # Get All Inputs and Results
     def get_input_values(self):
         """Obtener valores de entrada del formulario"""
         params = {}
@@ -524,6 +534,7 @@ class DynamicsFrame(QWidget):
 
         return params, mu, angle
 
+    #Calculate Newton's Second Law
     def calculate_newton(self):
         """Realizar cálculos de la Segunda Ley de Newton"""
         try:
@@ -533,6 +544,7 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
 
+    #Get Imput Values
     def get_input_value(self, field_dict, key):
         field = field_dict.get(key)
         if field:
@@ -541,12 +553,15 @@ class DynamicsFrame(QWidget):
                 return float(text)
         return None
 
+    #Get Input Values for Energy
     def get_energy_input_value(self, key):
         return self.get_input_value(self.energy_input_fields, key)
 
+    # Get Input Values for Momentum Calculations
     def get_momentum_input_value(self, key):
         return self.get_input_value(self.momentum_input_fields, key)
 
+    #Calculate Work
     def calculate_work(self):
         try:
             force = self.get_energy_input_value('work_force')
@@ -560,6 +575,7 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de trabajo:\n{str(e)}")
 
+    #Calculate Kinetic Energy
     def calculate_kinetic_energy(self):
         try:
             mass = self.get_energy_input_value('ke_mass')
@@ -572,6 +588,7 @@ class DynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de energía cinética:\n{str(e)}")
 
+    #Calculate Potential Energy
     def calculate_potential_energy(self):
         try:
             mass = self.get_energy_input_value('pe_mass')
