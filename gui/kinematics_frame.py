@@ -38,6 +38,7 @@ class KinematicsFrame(QWidget):
         # Configurar estado inicial
         self.on_movement_type_changed()
     
+    # Configurar la interfaz de usuario
     def setup_ui(self):
         """Configurar la interfaz de usuario"""
         # Layout principal
@@ -61,6 +62,7 @@ class KinematicsFrame(QWidget):
         splitter.setStretchFactor(0, 1)  # Panel izquierdo
         splitter.setStretchFactor(1, 2)  # Panel derecho (más grande)
     
+    # Crear panel de controles
     def create_control_panel(self):
         """Crear panel de controles"""
         # Scroll area para el panel de controles
@@ -104,6 +106,7 @@ class KinematicsFrame(QWidget):
         
         return scroll_area
     
+    # Crear sección de tipo de movimiento
     def create_movement_type_section(self):
         """Crear sección de tipo de movimiento"""
         group = QGroupBox("Tipo de Movimiento")
@@ -139,6 +142,7 @@ class KinematicsFrame(QWidget):
         
         return group
     
+    # Crear sección de parámetros
     def create_parameters_section(self):
         """Crear sección de parámetros"""
         group = QGroupBox("Parámetros")
@@ -199,6 +203,7 @@ class KinematicsFrame(QWidget):
         
         return group
     
+    # Crear botones de acción
     def create_action_buttons(self):
         """Crear botones de acción"""
         layout = QHBoxLayout()
@@ -235,6 +240,7 @@ class KinematicsFrame(QWidget):
         
         return layout
     
+    # Crear sección de resultados
     def create_results_section(self):
         """Crear sección de resultados"""
         group = QGroupBox("Resultados")
@@ -265,6 +271,7 @@ class KinematicsFrame(QWidget):
         
         return group
     
+    # Crear panel de gráficos
     def create_plot_panel(self):
         """Crear panel de gráficos"""
         # Widget contenedor
@@ -294,6 +301,7 @@ class KinematicsFrame(QWidget):
         
         return container
     
+    # Manejar cambio de tipo de movimiento
     def on_movement_type_changed(self):
         """Manejar cambio de tipo de movimiento"""
         is_mru = self.mru_radio.isChecked()
@@ -321,6 +329,7 @@ class KinematicsFrame(QWidget):
                 }
             """)
     
+    # Obtener valores de entrada del formulario
     def get_input_values(self):
         """Obtener valores de entrada del formulario"""
         params = {}
@@ -334,6 +343,7 @@ class KinematicsFrame(QWidget):
                 params[var_name] = None
         return params
     
+    # Realizar cálculo de cinemática
     def calculate(self):
         """Realizar cálculos de cinemática"""
         try:
@@ -352,6 +362,7 @@ class KinematicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
     
+    # Mostrar resultados en el área de texto
     def display_results(self):
         """Mostrar resultados en el área de texto"""
         if not self.results:
@@ -386,6 +397,7 @@ class KinematicsFrame(QWidget):
         
         self.results_text.setHtml(text)
     
+    # Generar gráficos de los resultados
     def plot_results(self):
         """Generar gráficos de los resultados"""
         if not self.results:
@@ -435,6 +447,7 @@ class KinematicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error al generar gráfico:\n{str(e)}")
     
+    # Limpiar todos los campos y resultados
     def clear_all(self):
         """Limpiar todos los campos y resultados"""
         # Limpiar campos de entrada
