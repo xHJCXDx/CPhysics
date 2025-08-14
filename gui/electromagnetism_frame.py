@@ -19,6 +19,7 @@ from modules.electromagnetism import ElectromagnetismCalculator
 from utils.validators import InputValidator
 
 class ElectromagnetismFrame(QWidget):
+    # Clase principal para la interfaz de electromagnetismo
     def __init__(self, parent=None):
         super().__init__(parent)
         
@@ -33,6 +34,7 @@ class ElectromagnetismFrame(QWidget):
         # Configurar la interfaz
         self.setup_ui()
     
+    # Método para configurar la interfaz de usuario
     def setup_ui(self):
         """Configurar la interfaz de usuario"""
         main_layout = QHBoxLayout(self) # Layout principal
@@ -55,6 +57,7 @@ class ElectromagnetismFrame(QWidget):
         splitter.setStretchFactor(0, 1) # Panel izquierdo
         splitter.setStretchFactor(1, 1) # Panel derecho
     
+    # Crear panel de controles y resultados
     def create_control_panel(self):
         """Crear panel de controles y resultados"""
         scroll_area = QScrollArea()
@@ -90,6 +93,7 @@ class ElectromagnetismFrame(QWidget):
         
         return scroll_area
     
+    # Crear sección de parámetros de entrada
     def create_parameters_section(self):
         """Crear sección de parámetros"""
         group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
@@ -136,6 +140,7 @@ class ElectromagnetismFrame(QWidget):
         
         return group
     
+    # Crear botones de accións
     def create_action_buttons(self):
         """Crear botones de acción"""
         layout = QHBoxLayout()
@@ -167,6 +172,7 @@ class ElectromagnetismFrame(QWidget):
         
         return layout
     
+    # Crear sección de resultados
     def create_results_section(self):
         """Crear sección de resultados"""
         group = QGroupBox("Resultados")
@@ -195,6 +201,7 @@ class ElectromagnetismFrame(QWidget):
         layout.addWidget(self.results_text)
         return group
 
+    # Crear panel de gráficos
     def create_plot_panel(self):
         """Crear panel de gráficos"""
         container = QWidget()
@@ -218,6 +225,7 @@ class ElectromagnetismFrame(QWidget):
 
         return container
         
+    # Obtener valores de entrada del formulario
     def get_input_values(self):
         """Obtener valores de entrada del formulario"""
         params = {}
@@ -226,6 +234,7 @@ class ElectromagnetismFrame(QWidget):
             params[var_name] = float(text) if text and self.validator.is_valid_number(text) else None
         return params
 
+    # Método para calcular la Ley de Coulomb
     def calculate(self):
         """Realizar cálculos de la Ley de Coulomb"""
         try:
@@ -235,6 +244,7 @@ class ElectromagnetismFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
 
+    # Método para mostrar resultados en el área de texto
     def display_results(self):
         """Mostrar resultados en el área de texto y en el campo de entrada correspondiente"""
         if not self.results: return
@@ -268,6 +278,7 @@ class ElectromagnetismFrame(QWidget):
         text += f"&nbsp;&nbsp;• {self.results['equations'][0]}<br>"
         self.results_text.setHtml(text)
 
+    # Método para limpiar todos los campos y resultados
     def clear_all(self):
         """Limpiar todos los campos y resultados"""
         for field in self.input_fields.values():
@@ -282,6 +293,7 @@ class ElectromagnetismFrame(QWidget):
             self.plot_results() # Redraw empty plot with dark theme
             self.canvas.draw()
 
+    # Método para graficar los resultados
     def plot_results(self):
         """Generar gráficos de los resultados"""
         if not self.results:
