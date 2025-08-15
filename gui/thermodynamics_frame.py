@@ -28,6 +28,7 @@ class ThermodynamicsFrame(QWidget):
         self.input_fields = {}
         self.setup_ui()
 
+    # Initializa la interfaz de usuario
     def setup_ui(self):
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(15)
@@ -45,6 +46,7 @@ class ThermodynamicsFrame(QWidget):
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 1)
 
+    # Crea el panel de control con los campos de entrada y botones
     def create_control_panel(self):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -74,6 +76,7 @@ class ThermodynamicsFrame(QWidget):
         layout.addStretch()
         return scroll_area
 
+    # Crea la sección de parámetros de entrada
     def create_parameters_section(self):
         group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
         group.setStyleSheet("""
@@ -116,6 +119,7 @@ class ThermodynamicsFrame(QWidget):
             layout.addWidget(line_edit, i, 1)
         return group
 
+    # Crea los botones de acción para calcular, limpiar y graficar
     def create_action_buttons(self):
         layout = QHBoxLayout()
         layout.setSpacing(10)
@@ -141,6 +145,7 @@ class ThermodynamicsFrame(QWidget):
         layout.addStretch()
         return layout
 
+    # Crea la sección de resultados para mostrar los cálculos
     def create_results_section(self):
         group = QGroupBox("Resultados")
         group.setStyleSheet("""
@@ -165,6 +170,7 @@ class ThermodynamicsFrame(QWidget):
         layout.addWidget(self.results_text)
         return group
 
+    # Crea el panel de gráficos para visualizar relaciones
     def create_plot_panel(self):
         container = QWidget()
         layout = QVBoxLayout(container)
@@ -182,6 +188,7 @@ class ThermodynamicsFrame(QWidget):
         layout.addWidget(self.canvas)
         return container
 
+    # Obtiene los valores de entrada de los campos
     def get_input_values(self):
         params = {}
         for var_name, field in self.input_fields.items():
@@ -189,6 +196,7 @@ class ThermodynamicsFrame(QWidget):
             params[var_name] = float(text) if text else None
         return params
 
+    # Calcula los resultados usando la Ley de los Gases Ideales
     def calculate(self):
         try:
             params = self.get_input_values()
@@ -197,6 +205,7 @@ class ThermodynamicsFrame(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 
+    # Muestra los resultados en el área de texto
     def display_results(self):
         if not self.results:
             self.results_text.setText("No hay resultados.")
@@ -213,12 +222,14 @@ class ThermodynamicsFrame(QWidget):
             txt += f"  {eq}\n"
         self.results_text.setText(txt)
 
+    # Limpia todos los campos de entrada y resultados
     def clear_all(self):
         for field in self.input_fields.values():
             field.clear()
         self.results_text.clear()
         self.results = {}
 
+    # Plotea los resultados usando seaborn
     def plot_results(self):
         """Ejemplo de gráfico usando seaborn"""
         self.figure.clear()
