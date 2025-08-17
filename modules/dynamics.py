@@ -182,53 +182,70 @@ class DynamicsCalculator:
             result = momentum / mass
             return {'velocity': result, 'equation': "v = p / m"}
 
-    def generate_plot_data(self, results, num_points=100):
-        input_params = results['input_params']
-        calculated_values = results['calculated_values']
-        all_params = {**input_params, **calculated_values}
+    def generate_custom_plot_data(self, x_var, y_var, constant_value, mu=None, angle=None, num_points=100):
+        """
+        Genera datos para un gráfico con variables X e Y personalizadas.
+        La ecuación base es: F_aplicada = m*a + m*g*sin(θ) + μ*m*g*cos(θ)
+        """
+        all_vars = {"f", "m", "a"}
+        constant_var = list(all_vars - {x_var, y_var})[0]
 
-        f = all_params.get('f')
-        m = all_params.get('m')
-        a = all_params.get('a')
-        mu = all_params.get('mu', 0)
-        angle = all_params.get('angle', 0)
-        theta = np.deg2rad(angle)
+        mu = mu if mu is not None else 0
+        theta = np.deg2rad(angle) if angle is not None else 0
 
-        calculated_var = list(calculated_values.keys())[0]
+        var_map = {
+            "f": ("Fuerza Aplicada (N)", constant_value),
+            "m": ("Masa (kg)", constant_value),
+            "a": ("Aceleración (m/s²)", constant_value)
+        }
+        
+        params = {
+            constant_var: constant_value
+        }
+        f, m, a = params.get('f'), params.get('m'), params.get('a')
 
-        # F_app = m*a + m*g*sin(theta) + mu*m*g*cos(theta)
-        # F_app = m * (a + g*sin(theta) + mu*g*cos(theta))
-        # F_app = a*m + (g*sin(theta) + mu*g*cos(theta))*m
+        # Definir rangos para los datos del eje X
+        if x_var == 'f':
+            x_data = np.linspace(0, 2 * (m*a if m and a else 10), num_points) if f is None else np.linspace(0, 2 * f, num_points)
+        elif x_var == 'm':
+            x_data = np.linspace(0.1, 2 * (f/a if f and a else 10), num_points) if m is None else np.linspace(0.1, 2 * m, num_points)
+        elif x_var == 'a':
+            x_data = np.linspace(-10, 2 * (f/m if f and m else 10), num_points) if a is None else np.linspace(a-10, a+10, num_points)
 
-        if calculated_var == 'a':
-            # Plot F_app vs m (a is constant)
-            x_label, y_label = 'Masa (kg)', 'Fuerza Aplicada (N)'
-            title = f'Fuerza vs. Masa (a = {a:.2f} m/s²)'
-            if angle > 0: title += f' (θ = {angle}°)'
-            if mu > 0: title += f' (μ = {mu})'
-            
-            m_max = m * 2 if m > 0 else 10
-            m_min = 0.1
-            if m_max <= m_min: m_max = m_min + 10
-            
-            x_data = np.linspace(m_min, m_max, num_points) # mass values
-            y_data = x_data * (a + self.g * np.sin(theta) + mu * self.g * np.cos(theta))
-        else: 
-            # Plot F_app vs a (m is constant)
-            x_label, y_label = 'Aceleración (m/s²)', 'Fuerza Aplicada (N)'
-            title = f'Fuerza vs. Aceleración (Masa = {m:.2f} kg)'
-            if angle > 0: title += f' (θ = {angle}°)'
-            if mu > 0: title += f' (μ = {mu})'
+        # Calcular datos del eje Y basados en la ecuación F = m*a + F_resistance
+        F_resistance = lambda mass: mass * self.g * np.sin(theta) + mu * mass * self.g * np.cos(theta)
 
-            a_max = a * 2 if a != 0 else 10
-            a_min = -abs(a_max) - (self.g * np.sin(theta) + mu * self.g * np.cos(theta))
-            if a_max <= a_min: a_max = a_min + 10
+        if y_var == 'f':
+            if x_var == 'm': # y: F, x: M, const: A
+                y_data = x_data * a + F_resistance(x_data)
+            elif x_var == 'a': # y: F, x: A, const: M
+                y_data = m * x_data + F_resistance(m)
+        
+        elif y_var == 'm':
+            if x_var == 'f': # y: M, x: F, const: A
+                denominator = a + self.g * np.sin(theta) + mu * self.g * np.cos(theta)
+                if denominator == 0: raise ValueError("División por cero en el cálculo de la masa.")
+                y_data = x_data / denominator
+            elif x_var == 'a': # y: M, x: A, const: F
+                denominator = x_data + self.g * np.sin(theta) + mu * self.g * np.cos(theta)
+                y_data = np.divide(f, denominator, where=denominator!=0)
 
-            x_data = np.linspace(a_min, a_max, num_points) # acceleration values
-            y_data = m * x_data + m * self.g * np.sin(theta) + mu * m * self.g * np.cos(theta)
+        elif y_var == 'a':
+            if x_var == 'f': # y: A, x: F, const: M
+                y_data = (x_data - F_resistance(m)) / m if m > 0 else np.zeros(num_points)
+            elif x_var == 'm': # y: A, x: M, const: F
+                y_data = (f - F_resistance(x_data)) / x_data if np.all(x_data > 0) else np.zeros(num_points)
 
         if not np.all(np.isfinite(x_data)) or not np.all(np.isfinite(y_data)):
             raise ValueError("Los datos generados para el gráfico contienen valores infinitos.")
+
+        # Crear etiquetas y título
+        x_label = var_map[x_var][0].replace(" (constante)", "")
+        y_label = var_map[y_var][0].replace(" (constante)", "")
+        const_label, const_val = var_map[constant_var]
+        title = f'{y_label.split(" (")[0]} vs. {x_label.split(" (")[0]}\n({const_label.split(" (")[0]} = {const_val:.2f})'
+        if angle is not None and angle > 0: title += f' (θ={angle}°)'
+        if mu is not None and mu > 0: title += f' (μ={mu})'
 
         return {
             'x_data': x_data, 'y_data': y_data,

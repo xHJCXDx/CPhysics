@@ -3,10 +3,10 @@
 Interfaz gráfica para el módulo de dinámica
 Permite calcular problemas de la Segunda Ley de Newton
 """
-
+ 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QSplitter,
                                 QGroupBox, QLabel, QLineEdit, QPushButton,
-                                QTextEdit, QScrollArea, QMessageBox, QCheckBox)
+                                QTextEdit, QScrollArea, QMessageBox, QCheckBox, QComboBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
@@ -463,10 +463,11 @@ class DynamicsFrame(QWidget):
 
     # Section for Plotting
     def create_plot_panel(self):
-        """Crear panel de gráficos"""
+        """Crear panel de gráficos con opciones de selección de variables."""
         container = QWidget()
         layout = QVBoxLayout(container)
         layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(10)
 
         title = QLabel("Gráfico de Relaciones")
         title.setFont(QFont("Arial", 14, QFont.Bold))
@@ -474,36 +475,99 @@ class DynamicsFrame(QWidget):
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
+        # --- Controles de selección de ejes ---
+        controls_layout = QGridLayout()
+        controls_layout.setSpacing(8)
+
+        self.x_axis_combo = QComboBox() 
+        self.y_axis_combo = QComboBox() 
+        self.constant_value_input = QLineEdit()
+        self.constant_value_input.setPlaceholderText("Valor de la constante")
+        self.constant_label = QLabel("Constante:")
+
+        variables = {"Fuerza": "f", "Masa": "m", "Aceleración": "a"}
+        for name, key in variables.items():
+            self.x_axis_combo.addItem(name, key)
+            self.y_axis_combo.addItem(name, key)
+
+        # Estilo para los ComboBox y LineEdit
+        combo_style = """
+            QComboBox { 
+                background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a; 
+                border-radius: 4px; padding: 6px;
+            }
+            QComboBox::drop-down { border: none; }
+            QComboBox QAbstractItemView { background-color: #34495e; color: #ecf0f1; }
+        """
+        self.x_axis_combo.setStyleSheet(combo_style)
+        self.y_axis_combo.setStyleSheet(combo_style)
+        self.constant_value_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a;
+                border-radius: 4px; padding: 6px;
+            }
+            QLineEdit:focus { border: 1px solid #8e44ad; }
+        """)
+
+        controls_layout.addWidget(QLabel("Eje X:"), 0, 0)
+        controls_layout.addWidget(self.x_axis_combo, 0, 1)
+        controls_layout.addWidget(QLabel("Eje Y:"), 1, 0)
+        controls_layout.addWidget(self.y_axis_combo, 1, 1)
+        controls_layout.addWidget(self.constant_label, 2, 0)
+        controls_layout.addWidget(self.constant_value_input, 2, 1)
+        
+        layout.addLayout(controls_layout)
+
+        # Conectar señales para actualizar la UI
+        self.x_axis_combo.currentIndexChanged.connect(self.update_constant_variable)
+        self.y_axis_combo.currentIndexChanged.connect(self.update_constant_variable)
+
+        # --- Lienzo del gráfico y barra de herramientas ---
         self.figure = Figure(figsize=(8, 6), dpi=100)
         self.canvas = FigureCanvas(self.figure)
-
         self.toolbar = NavigationToolbar(self.canvas, container)
 
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
         
         self.initialize_plot()
+        self.update_constant_variable() # Inicializar etiqueta de constante
 
-        return container    
+        return container
 
-    # Initialize Plot
+    def update_constant_variable(self):
+        """Actualiza la etiqueta de la variable constante basándose en la selección de los ejes."""
+        x_var = self.x_axis_combo.currentData()
+        y_var = self.y_axis_combo.currentData()
+        
+        all_vars = {"f", "m", "a"}
+        selected_vars = {x_var, y_var}
+        
+        if len(selected_vars) < 2: # Si se selecciona la misma variable en ambos ejes
+            self.constant_label.setText("Inválido")
+            self.constant_value_input.setEnabled(False)
+            return
+
+        constant_var_key = list(all_vars - selected_vars)[0]
+        
+        var_map = {"f": "Fuerza (N)", "m": "Masa (kg)", "a": "Aceleración (m/s²)"}
+        self.constant_label.setText(f"{var_map[constant_var_key]} (constante):")
+        self.constant_value_input.setEnabled(True)
+
     def initialize_plot(self):
         """Inicializa o resetea el gráfico a su estado vacío por defecto."""
         self.figure.clear()
         self.figure.set_facecolor('#34495e')
         sns.set_theme(style="darkgrid", rc={
-            "axes.facecolor": "#2c3e50", 
-            "figure.facecolor": "#34495e",
-            "text.color": "#ecf0f1",
-            "axes.labelcolor": "#ecf0f1",
-            "xtick.color": "#ecf0f1",
-            "ytick.color": "#ecf0f1",
+            "axes.facecolor": "#2c3e50", "figure.facecolor": "#34495e",
+            "text.color": "#ecf0f1", "axes.labelcolor": "#ecf0f1",
+            "xtick.color": "#ecf0f1", "ytick.color": "#ecf0f1",
             "grid.color": "#4a627a",
         })
         ax = self.figure.add_subplot(1, 1, 1)
         ax.set_title("Gráfico de Relaciones", fontsize=14, fontweight='bold', color='#ecf0f1')
-        ax.set_xlabel("")
-        ax.set_ylabel("")
+        ax.set_xlabel("Seleccione variable para el eje X")
+        ax.set_ylabel("Seleccione variable para el eje Y")
         self.canvas.draw()
 
     # Get All Inputs and Results
@@ -781,21 +845,37 @@ class DynamicsFrame(QWidget):
         if hasattr(self, 'figure'):
             self.initialize_plot()
 
-    # Plot Results
     def plot_results(self):
-        """Generar gráficos de los resultados"""
-        if not self.results:
-            QMessageBox.warning(self, "Advertencia", "Primero debe realizar un cálculo de la Ley de Newton")
+        """Generar un gráfico basado en las variables seleccionadas por el usuario."""
+        x_var = self.x_axis_combo.currentData()
+        y_var = self.y_axis_combo.currentData()
+        constant_text = self.constant_value_input.text().strip()
+
+        if x_var == y_var:
+            QMessageBox.warning(self, "Selección Inválida", "Las variables de los ejes X e Y no pueden ser iguales.")
             return
 
+        if not constant_text or not self.validator.is_valid_number(constant_text):
+            QMessageBox.warning(self, "Valor Inválido", f"Por favor, ingrese un valor numérico válido para la constante.")
+            return
+        
+        constant_value = float(constant_text)
+
+        _, mu, angle = self.get_input_values() # Obtener mu y angle actuales
+
         try:
-            plot_data = self.calculator.generate_plot_data(self.results)
-            
+            plot_data = self.calculator.generate_custom_plot_data(
+                x_var=x_var,
+                y_var=y_var,
+                constant_value=constant_value,
+                mu=mu if self.friction_checkbox.isChecked() else None,
+                angle=angle if self.incline_checkbox.isChecked() else None
+            )
+
             if not isinstance(plot_data, dict) or not all(k in plot_data for k in ['x_data', 'y_data', 'x_label', 'y_label', 'title']):
                 raise TypeError("Los datos para el gráfico son inválidos o incompletos.")
 
-            x_data = plot_data['x_data']
-            y_data = plot_data['y_data']
+            x_data, y_data = plot_data['x_data'], plot_data['y_data']
 
             if not isinstance(x_data, np.ndarray) or not isinstance(y_data, np.ndarray) or x_data.ndim != 1 or y_data.ndim != 1 or len(x_data) != len(y_data):
                 raise TypeError("El formato de los datos para graficar es incorrecto.")
@@ -807,16 +887,14 @@ class DynamicsFrame(QWidget):
             self.figure.clear()
             self.figure.set_facecolor('#34495e')
             sns.set_theme(style="darkgrid", rc={
-                "axes.facecolor": "#2c3e50", 
-                "figure.facecolor": "#34495e",
-                "text.color": "#ecf0f1",
-                "axes.labelcolor": "#ecf0f1",
-                "xtick.color": "#ecf0f1",
-                "ytick.color": "#ecf0f1",
+                "axes.facecolor": "#2c3e50", "figure.facecolor": "#34495e",
+                "text.color": "#ecf0f1", "axes.labelcolor": "#ecf0f1",
+                "xtick.color": "#ecf0f1", "ytick.color": "#ecf0f1",
                 "grid.color": "#4a627a",
             })
             ax = self.figure.add_subplot(1, 1, 1)
             
+            # Añadir un poco de ruido a los datos para el scatter plot
             y_scatter = y_data.copy()
             if np.any(y_data):
                 noise_scale = np.mean(np.abs(y_data)) * 0.08
@@ -825,7 +903,7 @@ class DynamicsFrame(QWidget):
                     y_scatter += noise
 
             sns.lineplot(x=x_data, y=y_data, ax=ax, color='#e74c3c', linewidth=2.5, label='Relación teórica')
-            sns.scatterplot(x=x_data, y=y_scatter, ax=ax, color='#3498db', alpha=0.7, label='Datos experimentales')
+            sns.scatterplot(x=x_data, y=y_scatter, ax=ax, color='#3498db', alpha=0.7, label='Datos simulados')
 
             ax.set_xlabel(plot_data['x_label'], fontsize=12, color='#ecf0f1')
             ax.set_ylabel(plot_data['y_label'], fontsize=12, color='#ecf0f1')
