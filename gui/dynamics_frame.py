@@ -535,6 +535,7 @@ class DynamicsFrame(QWidget):
 
         return container
 
+    # Actualizar etiqueta de variable constante
     def update_constant_variable(self):
         """Actualiza la etiqueta de la variable constante basándose en la selección de los ejes."""
         x_var = self.x_axis_combo.currentData()
@@ -554,6 +555,7 @@ class DynamicsFrame(QWidget):
         self.constant_label.setText(f"{var_map[constant_var_key]} (constante):")
         self.constant_value_input.setEnabled(True)
 
+    # Mostrar resultados
     def initialize_plot(self):
         """Inicializa o resetea el gráfico a su estado vacío por defecto."""
         self.figure.clear()
