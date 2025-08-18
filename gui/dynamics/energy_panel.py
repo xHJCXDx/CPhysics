@@ -1,0 +1,136 @@
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QGridLayout, QGroupBox, 
+                                QLabel, QLineEdit, QPushButton, QMessageBox)
+from PySide6.QtCore import Signal, Slot
+
+from modules.dynamics import DynamicsCalculator
+from utils.validators import InputValidator
+
+class EnergyPanel(QWidget):
+    calculation_ready = Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.calculator = DynamicsCalculator()
+        self.validator = InputValidator()
+        self.input_fields = {}
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        energy_group = self.create_energy_section()
+        layout.addWidget(energy_group)
+
+    def create_energy_section(self):
+        main_group = QGroupBox("Trabajo y Energía")
+        main_group.setStyleSheet("""
+            QGroupBox { font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 10px; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;}
+            QGroupBox::title { color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;}
+            QLineEdit {background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;}
+            QLineEdit:focus { border: 1px solid #8e44ad; }
+            QPushButton { background-color: #16a085; border: none; color: white; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-top: 5px;}
+            QPushButton:hover { background-color: #1abc9c; }
+            QPushButton:pressed { background-color: #148f77; }
+            QGroupBox QGroupBox { font-weight: bold; font-size: 12px; padding-top: 8px; margin-top: 5px; color: #bdc3c7; border: 1px solid #3e5062; border-radius: 5px;}
+            QGroupBox QGroupBox::title { color: #bdc3c7; }
+            QLabel { font-size: 12px; color: #ecf0f1; }
+        """)
+        main_layout = QVBoxLayout(main_group)
+
+        # Work
+        work_group = QGroupBox("Calcular Trabajo (W)")
+        work_layout = QGridLayout(work_group)
+        work_params = {'work_force': 'Fuerza (N):', 'work_distance': 'Distancia (m):', 'work_angle': 'Ángulo (θ°):'}
+        for i, (key, label) in enumerate(work_params.items()):
+            work_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            self.input_fields[key] = line_edit
+            work_layout.addWidget(line_edit, i, 1)
+        calc_work_btn = QPushButton("Calcular Trabajo")
+        calc_work_btn.clicked.connect(self.calculate_work)
+        work_layout.addWidget(calc_work_btn, len(work_params), 0, 1, 2)
+        main_layout.addWidget(work_group)
+
+        # Kinetic Energy
+        ke_group = QGroupBox("Calcular Energía Cinética (KE)")
+        ke_layout = QGridLayout(ke_group)
+        ke_params = {'ke_mass': 'Masa (kg):', 'ke_velocity': 'Velocidad (m/s):'}
+        for i, (key, label) in enumerate(ke_params.items()):
+            ke_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            self.input_fields[key] = line_edit
+            ke_layout.addWidget(line_edit, i, 1)
+        calc_ke_btn = QPushButton("Calcular Energía Cinética")
+        calc_ke_btn.clicked.connect(self.calculate_kinetic_energy)
+        ke_layout.addWidget(calc_ke_btn, len(ke_params), 0, 1, 2)
+        main_layout.addWidget(ke_group)
+
+        # Potential Energy
+        pe_group = QGroupBox("Calcular Energía Potencial (PE)")
+        pe_layout = QGridLayout(pe_group)
+        pe_params = {'pe_mass': 'Masa (kg):', 'pe_height': 'Altura (m):'}
+        for i, (key, label) in enumerate(pe_params.items()):
+            pe_layout.addWidget(QLabel(label), i, 0)
+            line_edit = QLineEdit()
+            self.input_fields[key] = line_edit
+            pe_layout.addWidget(line_edit, i, 1)
+        calc_pe_btn = QPushButton("Calcular Energía Potencial")
+        calc_pe_btn.clicked.connect(self.calculate_potential_energy)
+        pe_layout.addWidget(calc_pe_btn, len(pe_params), 0, 1, 2)
+        main_layout.addWidget(pe_group)
+
+        return main_group
+
+    def get_input_value(self, key):
+        field = self.input_fields.get(key)
+        if field and field.text().strip() and self.validator.is_valid_number(field.text().strip()):
+            return float(field.text().strip())
+        return None
+
+    @Slot()
+    def calculate_work(self):
+        try:
+            force = self.get_input_value('work_force')
+            distance = self.get_input_value('work_distance')
+            angle = self.get_input_value('work_angle') or 0
+            result = self.calculator.calculate_work(force, distance, angle)
+            html = self.format_result_to_html("Trabajo", result['work'], result['equation'], {'Fuerza': force, 'Distancia': distance, 'Ángulo': angle})
+            self.calculation_ready.emit(html)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de trabajo:\n{str(e)}")
+
+    @Slot()
+    def calculate_kinetic_energy(self):
+        try:
+            mass = self.get_input_value('ke_mass')
+            velocity = self.get_input_value('ke_velocity')
+            result = self.calculator.calculate_kinetic_energy(mass, velocity)
+            html = self.format_result_to_html("Energía Cinética", result['kinetic_energy'], result['equation'], {'Masa': mass, 'Velocidad': velocity})
+            self.calculation_ready.emit(html)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de energía cinética:\n{str(e)}")
+
+    @Slot()
+    def calculate_potential_energy(self):
+        try:
+            mass = self.get_input_value('pe_mass')
+            height = self.get_input_value('pe_height')
+            result = self.calculator.calculate_potential_energy(mass, height)
+            html = self.format_result_to_html("Energía Potencial", result['potential_energy'], result['equation'], {'Masa': mass, 'Altura': height})
+            self.calculation_ready.emit(html)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error en el cálculo de energía potencial:\n{str(e)}")
+
+    def format_result_to_html(self, title, value, equation, params):
+        parts = [f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>", "=" * 50 + "<br><br>"]
+        parts.append("<b>Parámetros:</b><br>")
+        for name, val in params.items():
+            if val is not None: parts.append(f"&nbsp;&nbsp;• {name}: {val}<br>")
+        parts.append(f"<br><b>Ecuación:</b><br>&nbsp;&nbsp;• {equation}<br>")
+        parts.append(f"<br><b>Resultado:</b><br>&nbsp;&nbsp;• <span style='color:#2ecc71;'>{title}</span>: {value:.4f} Joules<br>")
+        return "".join(parts)
+
+    @Slot()
+    def clear(self):
+        for field in self.input_fields.values():
+            field.clear()
