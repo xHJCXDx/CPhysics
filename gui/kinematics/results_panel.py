@@ -47,9 +47,15 @@ class ResultsPanel(QWidget):
         text += "<b>Parámetros utilizados:</b><br>"
         text += "-" * 25 + "<br>"
         param_map = {
-            'x0': 'Posición inicial (m)', 'v0': 'Velocidad inicial (m/s)', 
+            'x0': 'Posición inicial (m)', 'y0': 'Altura inicial (m)', 'v0': 'Velocidad inicial (m/s)', 
             'a': 'Aceleración (m/s²)', 't': 'Tiempo (s)', 
-            'x': 'Posición final (m)', 'v': 'Velocidad final (m/s)'
+            'x': 'Posición final (m)', 'v': 'Velocidad final (m/s)',
+            'angle': 'Ángulo de lanzamiento (°)',
+            'time_of_flight': 'Tiempo de vuelo (s)',
+            'max_height': 'Altura máxima (m)',
+            'range': 'Alcance (m)',
+            'v0x': 'Velocidad inicial en x (m/s)',
+            'v0y': 'Velocidad inicial en y (m/s)'
         }
         for key, value in results.get('input_params', {}).items():
             if value is not None:

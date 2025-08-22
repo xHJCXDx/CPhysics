@@ -1,4 +1,3 @@
-
 """
 Interfaz gráfica para el módulo de cinemática
 Permite calcular y visualizar problemas de movimiento
@@ -57,8 +56,10 @@ class KinematicsFrame(QWidget):
             
             if self.control_panel.mru_radio.isChecked():
                 self.results = self.calculator.calculate_mru(params)
-            else:
+            elif self.control_panel.mrua_radio.isChecked():
                 self.results = self.calculator.calculate_mrua(params)
+            else:
+                self.results = self.calculator.calculate_parabolic_motion(params)
             
             self.results_panel.display_results(self.results)
             
