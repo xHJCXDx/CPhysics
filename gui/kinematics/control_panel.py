@@ -12,6 +12,7 @@ class ControlPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.input_fields = {}
+        self.param_widgets = {}
         self.setup_ui()
 
     def setup_ui(self):
@@ -28,7 +29,7 @@ class ControlPanel(QWidget):
         layout = QVBoxLayout(container)
         layout.setSpacing(15)
         
-        title = QLabel("Cinemática - Movimiento Rectilíneo")
+        title = QLabel("Cinemática")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         title.setStyleSheet("color: #ecf0f1; padding: 10px 0px; border: none;")
         title.setAlignment(Qt.AlignCenter)
@@ -61,18 +62,21 @@ class ControlPanel(QWidget):
         
         self.mru_radio = QRadioButton("Movimiento Rectilíneo Uniforme (MRU)")
         self.mrua_radio = QRadioButton("Movimiento Rectilíneo Uniformemente Acelerado (MRUA)")
+        self.parabolic_radio = QRadioButton("Movimiento Parabólico")
         
         radio_style = "QRadioButton { color: #ecf0f1; font-size: 12px; } QRadioButton::indicator { width: 15px; height: 15px; }"
-        for radio in [self.mru_radio, self.mrua_radio]:
+        for radio in [self.mru_radio, self.mrua_radio, self.parabolic_radio]:
             radio.setStyleSheet(radio_style)
 
         self.mru_radio.setChecked(True)
         
         self.mru_radio.toggled.connect(self.on_movement_type_changed)
         self.mrua_radio.toggled.connect(self.on_movement_type_changed)
+        self.parabolic_radio.toggled.connect(self.on_movement_type_changed)
         
         layout.addWidget(self.mru_radio)
         layout.addWidget(self.mrua_radio)
+        layout.addWidget(self.parabolic_radio)
         
         return group
 
@@ -91,16 +95,18 @@ class ControlPanel(QWidget):
             }
         """)
         
-        layout = QGridLayout(group)
-        layout.setSpacing(8)
+        self.params_layout = QGridLayout(group)
+        self.params_layout.setSpacing(8)
         
         params_info = [
             ('x0', 'Posición inicial (m):', True),
+            ('y0', 'Altura inicial (m):', False),
             ('v0', 'Velocidad inicial (m/s):', True),
             ('a', 'Aceleración (m/s²):', False),
             ('t', 'Tiempo (s):', True),
             ('x', 'Posición final (m):', False),
-            ('v', 'Velocidad final (m/s):', False)
+            ('v', 'Velocidad final (m/s):', False),
+            ('angle', 'Ángulo de lanzamiento (°):', False)
         ]
         
         for i, (var_name, label_text, is_enabled) in enumerate(params_info):
@@ -121,9 +127,10 @@ class ControlPanel(QWidget):
             """)
             
             self.input_fields[var_name] = line_edit
+            self.param_widgets[var_name] = (label, line_edit)
             
-            layout.addWidget(label, i, 0)
-            layout.addWidget(line_edit, i, 1)
+            self.params_layout.addWidget(label, i, 0)
+            self.params_layout.addWidget(line_edit, i, 1)
         
         return group
 
@@ -160,36 +167,62 @@ class ControlPanel(QWidget):
 
     def on_movement_type_changed(self):
         is_mru = self.mru_radio.isChecked()
-        self.input_fields['a'].setEnabled(not is_mru)
-        
-        if is_mru:
-            self.input_fields['a'].setText('0')
-            self.input_fields['a'].setStyleSheet("background-color: #2c3e50; color: #7f8c8d; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;")
-        else:
-            self.input_fields['a'].setText('')
-            self.input_fields['a'].setStyleSheet("""
-                QLineEdit {
-                    background-color: #2c3e50;
-                    color: #ecf0f1;
-                    border: 1px solid #4a627a;
-                    border-radius: 4px;
-                    padding: 6px;
-                }
-                QLineEdit:focus {
-                    border: 1px solid #8e44ad;
-                }
-            """)
+        is_mrua = self.mrua_radio.isChecked()
+        is_parabolic = self.parabolic_radio.isChecked()
+
+        # Ocultar todos los parámetros primero
+        for var_name in self.param_widgets:
+            label, line_edit = self.param_widgets[var_name]
+            label.setVisible(False)
+            line_edit.setVisible(False)
+
+        if is_mru or is_mrua:
+            # Mostrar parámetros para MRU/MRUA
+            params_to_show = ['x0', 'v0', 'a', 't', 'x', 'v']
+            for var_name in params_to_show:
+                label, line_edit = self.param_widgets[var_name]
+                label.setVisible(True)
+                line_edit.setVisible(True)
+            
+            self.input_fields['a'].setEnabled(is_mrua)
+            if is_mru:
+                self.input_fields['a'].setText('0')
+                self.input_fields['a'].setStyleSheet("background-color: #2c3e50; color: #7f8c8d; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;")
+            else:
+                self.input_fields['a'].setText('')
+                self.input_fields['a'].setStyleSheet("""
+                    QLineEdit {
+                        background-color: #2c3e50;
+                        color: #ecf0f1;
+                        border: 1px solid #4a627a;
+                        border-radius: 4px;
+                        padding: 6px;
+                    }
+                    QLineEdit:focus {
+                        border: 1px solid #8e44ad;
+                    }
+                """)
+
+        elif is_parabolic:
+            # Mostrar parámetros para Movimiento Parabólico
+            params_to_show = ['v0', 'angle', 'x0', 'y0']
+            for var_name in params_to_show:
+                label, line_edit = self.param_widgets[var_name]
+                label.setVisible(True)
+                line_edit.setVisible(True)
+                line_edit.setEnabled(True)
 
     def get_input_values(self, validator):
         params = {}
         for var_name, field in self.input_fields.items():
-            text = field.text().strip()
-            if text:
-                if not validator.is_valid_number(text):
-                    raise ValueError(f"Valor inválido para {var_name}: {text}")
-                params[var_name] = float(text)
-            else:
-                params[var_name] = None
+            if field.isVisible():
+                text = field.text().strip()
+                if text:
+                    if not validator.is_valid_number(text):
+                        raise ValueError(f"Valor inválido para {var_name}: {text}")
+                    params[var_name] = float(text)
+                else:
+                    params[var_name] = None
         return params
 
     def clear_fields(self):

@@ -154,6 +154,63 @@ class KinematicsCalculator:
             'movement_type': 'mrua'
         }
     
+    def calculate_parabolic_motion(self, params):
+        """
+        Calcular parámetros para Movimiento Parabólico (Tiro de Proyectil)
+        
+        Ecuaciones:
+        y = y0 + v0y*t - (1/2)*g*t²
+        x = x0 + v0x*t
+        vy = v0y - g*t
+        vx = v0x
+        """
+        v0 = params.get('v0')
+        angle_deg = params.get('angle')
+        x0 = params.get('x0', 0)
+        y0 = params.get('y0', 0)
+        g = 9.81 # Aceleración gravitacional
+
+        if v0 is None or angle_deg is None:
+            raise ValueError("La velocidad inicial y el ángulo son requeridos")
+
+        angle_rad = math.radians(angle_deg)
+        v0x = v0 * math.cos(angle_rad)
+        v0y = v0 * math.sin(angle_rad)
+
+        # Tiempo para alcanzar la altura máxima (vy = 0)
+        t_max_height = v0y / g if g > EPSILON else 0
+        
+        # Tiempo de vuelo total (retorno a y=y0)
+        # y0 = y0 + v0y*t - 0.5*g*t^2 => 0 = t * (v0y - 0.5*g*t)
+        time_of_flight = (2 * v0y) / g if g > EPSON else 0
+        
+        # Altura máxima (y en t_max_height)
+        max_height = y0 + v0y * t_max_height - 0.5 * g * t_max_height**2
+        
+        # Alcance (x en time_of_flight)
+        reach = x0 + v0x * time_of_flight
+
+        input_params = {'v0': v0, 'angle': angle_deg, 'x0': x0, 'y0': y0}
+        calculated_values = {
+            'time_of_flight': time_of_flight,
+            'max_height': max_height,
+            'range': reach,
+            'v0x': v0x,
+            'v0y': v0y
+        }
+        equations = [
+            "t_vuelo = (2 * v₀ * sin(θ)) / g",
+            "h_max = y₀ + (v₀² * sin²(θ)) / (2 * g)",
+            "R = x₀ + (v₀² * sin(2θ)) / g"
+        ]
+
+        return {
+            'input_params': input_params,
+            'calculated_values': calculated_values,
+            'equations': equations,
+            'movement_type': 'parabolic'
+        }
+
     def generate_plot_data(self, results, num_points=100):
         """
         Generar datos para graficar basado en los resultados del cálculo
@@ -166,6 +223,29 @@ class KinematicsCalculator:
         # Combinar parámetros
         all_params = {**input_params, **calculated_values}
         
+        if movement_type == 'parabolic':
+            v0 = all_params.get('v0', 0)
+            angle_deg = all_params.get('angle', 0)
+            x0 = all_params.get('x0', 0)
+            y0 = all_params.get('y0', 0)
+            time_of_flight = all_params.get('time_of_flight', 10)
+            g = 9.81
+
+            angle_rad = math.radians(angle_deg)
+            v0x = v0 * math.cos(angle_rad)
+            v0y = v0 * math.sin(angle_rad)
+            
+            t = np.linspace(0, time_of_flight, num_points)
+            x = x0 + v0x * t
+            y = y0 + v0y * t - 0.5 * g * t**2
+            
+            return {
+                'time': t,
+                'position_x': x,
+                'position_y': y,
+                'movement_type': 'parabolic'
+            }
+
         x0 = all_params.get('x0', 0)
         v0 = all_params.get('v0', 0)
         a = all_params.get('a', 0) if movement_type == 'mrua' else 0
@@ -189,5 +269,6 @@ class KinematicsCalculator:
         return {
             'time': time,
             'position': position,
-            'velocity': velocity
+            'velocity': velocity,
+            'movement_type': movement_type
         }
