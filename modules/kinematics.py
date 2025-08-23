@@ -182,7 +182,7 @@ class KinematicsCalculator:
         
         # Tiempo de vuelo total (retorno a y=y0)
         # y0 = y0 + v0y*t - 0.5*g*t^2 => 0 = t * (v0y - 0.5*g*t)
-        time_of_flight = (2 * v0y) / g if g > EPSON else 0
+        time_of_flight = (2 * v0y) / g if g > EPSILON else 0
         
         # Altura máxima (y en t_max_height)
         max_height = y0 + v0y * t_max_height - 0.5 * g * t_max_height**2
