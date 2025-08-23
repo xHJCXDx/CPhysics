@@ -41,9 +41,16 @@ class ResultsPanel(QWidget):
             self.results_text.clear()
             return
 
+        movement_type = results.get('movement_type')
         text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO</b><br>"
         text += "=" * 50 + "<br><br>"
-        
+
+        if movement_type == 'meeting_point':
+            self.display_meeting_point_results(results, text)
+        else:
+            self.display_standard_results(results, text)
+
+    def display_standard_results(self, results, text):
         text += "<b>Parámetros utilizados:</b><br>"
         text += "-" * 25 + "<br>"
         param_map = {
@@ -72,6 +79,35 @@ class ResultsPanel(QWidget):
             for eq in results['equations']:
                 text += f"&nbsp;&nbsp;• {eq}<br>"
         
+        self.results_text.setHtml(text)
+
+    def display_meeting_point_results(self, results, text):
+        text += "<b>Parámetros utilizados:</b><br>"
+        text += "-" * 25 + "<br>"
+        param_map = {
+            'x0': 'Posición inicial (m)', 'v0': 'Velocidad inicial (m/s)', 
+            'a': 'Aceleración (m/s²)'
+        }
+        for obj_name, params in results.get('input_params', {}).items():
+            text += f"<b>{obj_name}:</b><br>"
+            for key, value in params.items():
+                text += f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value}<br>"
+        
+        text += "<br><b>Resultados calculados:</b><br>"
+        text += "-" * 25 + "<br>"
+        calculated_map = {
+            'tiempo_encuentro': 'Tiempo de encuentro (s)',
+            'posicion_encuentro': 'Posición de encuentro (m)'
+        }
+        for key, value in results.get('calculated_values', {}).items():
+            text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{calculated_map.get(key, key)}</span>: {value:.4f}<br>"
+
+        if 'equations' in results:
+            text += "<br><b style='color:#9b59b6;'>Ecuaciones utilizadas:</b><br>"
+            text += "-" * 25 + "<br>"
+            for eq in results['equations']:
+                text += f"&nbsp;&nbsp;• {eq}<br>"
+
         self.results_text.setHtml(text)
 
     def clear(self):

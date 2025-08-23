@@ -211,6 +211,77 @@ class KinematicsCalculator:
             'movement_type': 'parabolic'
         }
 
+    def calculate_meeting_point(self, params):
+        """
+        Calcular el punto de encuentro de dos objetos en MRUA.
+        
+        Resuelve la ecuación:
+        x0_1 + v0_1*t + 0.5*a1*t^2 = x0_2 + v0_2*t + 0.5*a2*t^2
+        
+        (0.5*a1 - 0.5*a2)*t^2 + (v0_1 - v0_2)*t + (x0_1 - x0_2) = 0
+        """
+        obj1 = params['obj1']
+        obj2 = params['obj2']
+
+        x0_1, v0_1, a_1 = obj1.get('x0', 0), obj1.get('v0', 0), obj1.get('a', 0)
+        x0_2, v0_2, a_2 = obj2.get('x0', 0), obj2.get('v0', 0), obj2.get('a', 0)
+
+        # Coeficientes de la ecuación cuadrática At^2 + Bt + C = 0
+        A = 0.5 * (a_1 - a_2)
+        B = v0_1 - v0_2
+        C = x0_1 - x0_2
+
+        if abs(A) < EPSILON:
+            # Ecuación lineal (movimiento con aceleración igual o similar)
+            if abs(B) < EPSILON:
+                if abs(C) < EPSILON:
+                    # Los objetos están en la misma posición y se mueven juntos
+                    raise ValueError("Los objetos tienen la misma posición y velocidad inicial (movimiento relativo cero)")
+                else:
+                    # Paralelos, nunca se encuentran
+                    raise ValueError("Los objetos nunca se encuentran (velocidades iguales, posiciones diferentes)")
+            
+            t = -C / B
+            if t < 0:
+                raise ValueError("El encuentro ocurriría en un tiempo negativo (en el pasado)")
+        else:
+            # Ecuación cuadrática
+            discriminant = B**2 - 4*A*C
+            if discriminant < 0:
+                raise ValueError("No hay solución real para el tiempo (los objetos no se encuentran)")
+            
+            sqrt_discriminant = np.sqrt(discriminant)
+            t1 = (-B + sqrt_discriminant) / (2*A)
+            t2 = (-B - sqrt_discriminant) / (2*A)
+            
+            # Filtrar tiempos negativos
+            valid_times = [t for t in [t1, t2] if t >= 0]
+            
+            if not valid_times:
+                raise ValueError("El encuentro ocurriría en un tiempo negativo")
+            
+            t = min(valid_times)
+
+        # Calcular posición de encuentro
+        position = x0_1 + v0_1 * t + 0.5 * a_1 * t**2
+
+        input_params = {
+            'Objeto 1': {'x0': x0_1, 'v0': v0_1, 'a': a_1},
+            'Objeto 2': {'x0': x0_2, 'v0': v0_2, 'a': a_2}
+        }
+        calculated_values = {
+            'tiempo_encuentro': t,
+            'posicion_encuentro': position
+        }
+        equations = ["x₁ = x₀₁ + v₀₁t + ½a₁t²", "x₂ = x₀₂ + v₀₂t + ½a₂t²"]
+
+        return {
+            'input_params': input_params,
+            'calculated_values': calculated_values,
+            'equations': equations,
+            'movement_type': 'meeting_point'
+        }
+
     def generate_plot_data(self, results, num_points=100):
         """
         Generar datos para graficar basado en los resultados del cálculo
