@@ -62,97 +62,82 @@ class KinematicsCalculator:
             'movement_type': 'mru'
         }
     
+    def _calculate_x_v_from_v0_a_t(self, params):
+        x0, v0, a, t = params.get('x0', 0), params['v0'], params['a'], params['t']
+        x_final = x0 + v0 * t + 0.5 * a * t**2
+        v_final = v0 + a * t
+        return {'x': x_final, 'v': v_final}, {'x0': x0, 'v0': v0, 'a': a, 't': t}
+
+    def _calculate_t_v_from_v0_a_x(self, params):
+        x0, v0, a, x = params.get('x0', 0), params['v0'], params['a'], params['x']
+        A, B, C = 0.5 * a, v0, x0 - x
+        if abs(a) < EPSILON:
+            t_calc = (x - x0) / v0 if abs(v0) > EPSILON else 0
+        else:
+            discriminant = B**2 - 4 * A * C
+            if discriminant < 0:
+                raise ValueError("No hay solución real para el tiempo (discriminante negativo)")
+            t1, t2 = (-B + np.sqrt(discriminant)) / (2 * A), (-B - np.sqrt(discriminant)) / (2 * A)
+            t_calc = t1 if t1 >= 0 else t2
+            if t_calc < 0:
+                raise ValueError("No se encontró una solución de tiempo válida")
+        v_final = v0 + a * t_calc
+        return {'t': t_calc, 'v': v_final}, {'x0': x0, 'v0': v0, 'a': a, 'x': x}
+
+    def _calculate_t_x_from_v0_v_a(self, params):
+        x0, v0, v, a = params.get('x0', 0), params['v0'], params['v'], params['a']
+        t_calc = (v - v0) / a if abs(a) > EPSILON else 0
+        x_final = x0 + v0 * t_calc + 0.5 * a * t_calc**2
+        return {'t': t_calc, 'x': x_final}, {'x0': x0, 'v0': v0, 'a': a, 'v': v}
+
+    def _calculate_x_t_from_v0_a_v(self, params):
+        x0, v0, a, v = params.get('x0', 0), params['v0'], params['a'], params['v']
+        delta_x = (v**2 - v0**2) / (2 * a) if abs(a) > EPSILON else 0
+        x_final = x0 + delta_x
+        t_calc = (v - v0) / a if abs(a) > EPSILON else 0
+        return {'t': t_calc, 'x': x_final}, {'x0': x0, 'v0': v0, 'a': a, 'v': v}
+
     def calculate_mrua(self, params):
         """
         Calcular parámetros para Movimiento Rectilíneo Uniformemente Acelerado
-        
-        Ecuaciones:
-        x = x0 + v0*t + (1/2)*a*t²
-        v = v0 + a*t
-        v² = v0² + 2*a*(x-x0)
         """
-        x0 = params.get('x0') if params.get('x0') is not None else 0
-        v0 = params.get('v0')
-        a = params.get('a')
-        t = params.get('t')
-        x = params.get('x')
-        v = params.get('v')
-        
-        input_params = {}
-        calculated_values = {}
-        equations = [
-            "x = x₀ + v₀×t + ½×a×t²",
-            "v = v₀ + a×t",
-            "v² = v₀² + 2×a×(x-x₀)"
+        strategies = [
+            ({'v0', 'a', 't'}, self._calculate_x_v_from_v0_a_t),
+            ({'v0', 'a', 'x'}, self._calculate_t_v_from_v0_a_x),
+            ({'v0', 'v', 'a'}, self._calculate_t_x_from_v0_v_a),
         ]
+
+        provided_params = {k for k, v in params.items() if v is not None}
         
-        # Casos más comunes de resolución
-        if v0 is not None and a is not None and t is not None:
-            # Caso 1: Conocemos v0, a, t -> calcular x, v
-            x_final = x0 + v0 * t + 0.5 * a * t**2
-            v_final = v0 + a * t
-            
-            input_params = {'x0': x0, 'v0': v0, 'a': a, 't': t}
-            calculated_values = {'x': x_final, 'v': v_final}
-            
-        elif v0 is not None and a is not None and x is not None and x0 is not None:
-            # Caso 2: Conocemos v0, a, x, x0 -> calcular t, v
-            # Usando: x = x0 + v0*t + (1/2)*a*t²
-            # Reordenando: (1/2)*a*t² + v0*t + (x0-x) = 0
-            
-            A = 0.5 * a
-            B = v0
-            C = x0 - x
-            
-            if abs(a) < EPSILON:
-                # Movimiento uniforme
-                t_calc = (x - x0) / v0 if abs(v0) > EPSILON else 0
-            else:
-                # Ecuación cuadrática
-                discriminant = B**2 - 4*A*C
-                if discriminant < 0:
-                    raise ValueError("No hay solución real para el tiempo (discriminante negativo)")
-                
-                t1 = (-B + np.sqrt(discriminant)) / (2*A)
-                t2 = (-B - np.sqrt(discriminant)) / (2*A)
-                
-                # Elegir la solución de tiempo positiva más pequeña (o la única positiva)
-                t_calc = t1 if t1 >= 0 else t2
-                if t_calc < 0:
-                    raise ValueError("No se encontró una solución de tiempo válida")
-            
-            v_final = v0 + a * t_calc
-            
-            input_params = {'x0': x0, 'v0': v0, 'a': a, 'x': x}
-            calculated_values = {'t': t_calc, 'v': v_final}
-            
-        elif v0 is not None and v is not None and a is not None:
-            # Caso 3: Conocemos v0, v, a -> calcular t, x
-            t_calc = (v - v0) / a if abs(a) > EPSILON else 0
-            x_final = x0 + v0 * t_calc + 0.5 * a * t_calc**2
-            
-            input_params = {'x0': x0, 'v0': v0, 'a': a, 'v': v}
-            calculated_values = {'t': t_calc, 'x': x_final}
-            
-        elif v0 is not None and a is not None and v is not None and x0 is not None:
-            # Caso 4: Usando v² = v0² + 2*a*(x-x0) -> calcular x, t
-            delta_x = (v**2 - v0**2) / (2 * a) if abs(a) > EPSILON else 0
-            x_final = x0 + delta_x
-            
-            t_calc = (v - v0) / a if abs(a) > EPSILON else 0
-            
-            input_params = {'x0': x0, 'v0': v0, 'a': a, 'v': v}
-            calculated_values = {'t': t_calc, 'x': x_final}
-            
-        else:
-            raise ValueError("Faltan parámetros para resolver el problema de MRUA")
+        for required, func in strategies:
+            if required.issubset(provided_params):
+                calculated_values, input_params = func(params)
+                return {
+                    'input_params': input_params,
+                    'calculated_values': calculated_values,
+                    'equations': [
+                        "x = x₀ + v₀×t + ½×a×t²",
+                        "v = v₀ + a×t",
+                        "v² = v₀² + 2×a×(x-x₀)"
+                    ],
+                    'movement_type': 'mrua'
+                }
         
-        return {
-            'input_params': input_params,
-            'calculated_values': calculated_values,
-            'equations': equations,
-            'movement_type': 'mrua'
-        }
+        # Special case for the last one as it has the same signature
+        if {'v0', 'a', 'v'}.issubset(provided_params):
+             calculated_values, input_params = self._calculate_x_t_from_v0_a_v(params)
+             return {
+                    'input_params': input_params,
+                    'calculated_values': calculated_values,
+                    'equations': [
+                        "x = x₀ + v₀×t + ½×a×t²",
+                        "v = v₀ + a×t",
+                        "v² = v₀² + 2×a×(x-x₀)"
+                    ],
+                    'movement_type': 'mrua'
+                }
+
+        raise ValueError("Faltan parámetros para resolver el problema de MRUA")
     
     def calculate_parabolic_motion(self, params):
         """
