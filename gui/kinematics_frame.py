@@ -24,7 +24,7 @@ class KinematicsFrame(QWidget):
         self.setup_ui()
         self.control_panel.on_movement_type_changed()
 
-    # Configuración de la interfaz gráfica
+    # Configuring the graphical interface
     def setup_ui(self):
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(15)
