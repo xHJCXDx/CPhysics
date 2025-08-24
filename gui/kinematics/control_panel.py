@@ -1,13 +1,16 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                                 QGroupBox, QLabel, QLineEdit, QPushButton, QRadioButton,
-                                QScrollArea)
+                                QScrollArea, QTabWidget)
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
+
+from gui.kinematics.meeting_panel import MeetingPanel
 
 class ControlPanel(QWidget):
     calculate_requested = Signal()
     clear_requested = Signal()
     plot_requested = Signal()
+    calculate_meeting_requested = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -16,6 +19,50 @@ class ControlPanel(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+
+        title = QLabel("Cinemática")
+        title.setFont(QFont("Arial", 16, QFont.Bold))
+        title.setStyleSheet("color: #ecf0f1; padding: 10px; border: none;")
+        title.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(title)
+
+        self.tab_widget = QTabWidget()
+        self.tab_widget.setStyleSheet("""
+            QTabWidget::pane { 
+                border-top: 2px solid #4a627a;
+            }
+            QTabBar::tab {
+                background: #2c3e50;
+                color: #ecf0f1;
+                padding: 10px;
+                border: 1px solid #4a627a;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected, QTabBar::tab:hover {
+                background: #34495e;
+            }
+            QTabBar::tab:selected {
+                border-color: #8e44ad;
+            }
+        """)
+
+        # Tab for standard kinematics
+        kinematics_tab = QWidget()
+        self.setup_kinematics_tab(kinematics_tab)
+        self.tab_widget.addTab(kinematics_tab, "Movimiento")
+
+        # Tab for meeting point calculation
+        meeting_tab = QWidget()
+        self.setup_meeting_tab(meeting_tab)
+        self.tab_widget.addTab(meeting_tab, "Encuentros")
+
+        main_layout.addWidget(self.tab_widget)
+
+    def setup_kinematics_tab(self, tab):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setMinimumWidth(400)
@@ -23,17 +70,11 @@ class ControlPanel(QWidget):
         container = QWidget()
         scroll_area.setWidget(container)
         
-        main_layout = QVBoxLayout(self)
-        main_layout.addWidget(scroll_area)
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.addWidget(scroll_area)
         
         layout = QVBoxLayout(container)
         layout.setSpacing(15)
-        
-        title = QLabel("Cinemática")
-        title.setFont(QFont("Arial", 16, QFont.Bold))
-        title.setStyleSheet("color: #ecf0f1; padding: 10px 0px; border: none;")
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
         
         movement_group = self.create_movement_type_section()
         layout.addWidget(movement_group)
@@ -45,6 +86,18 @@ class ControlPanel(QWidget):
         layout.addLayout(buttons_layout)
         
         layout.addStretch()
+
+    def setup_meeting_tab(self, tab):
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setMinimumWidth(400)
+
+        self.meeting_panel = MeetingPanel()
+        scroll_area.setWidget(self.meeting_panel)
+
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.addWidget(scroll_area)
+        self.meeting_panel.calculate_requested.connect(self.calculate_meeting_requested)
 
     def create_movement_type_section(self):
         group = QGroupBox("Tipo de Movimiento")
@@ -230,3 +283,5 @@ class ControlPanel(QWidget):
             if field.isEnabled():
                 field.clear()
         self.on_movement_type_changed()
+        if hasattr(self, 'meeting_panel'):
+            self.meeting_panel.clear_fields()
