@@ -4,6 +4,8 @@ import sys
 import os
 import numpy as np
 
+#Use command: python -m unittest discover -s tests -p "test_*.py" or python -m unittest tests/test_kinematics.py
+
 # Add the parent directory to the sys.path to allow imports from the modules folder
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -53,28 +55,23 @@ class TestKinematicsCalculator(unittest.TestCase):
         self.assertAlmostEqual(result['calculated_values']['max_height'], 31.8552, places=4)
         # v0x = 50 * cos(30) = 43.3012
         # range = 43.3012 * 5.0968 = 220.92
-        self.assertAlmostEqual(result['calculated_values']['range'], 220.925, places=3)
+        self.assertAlmostEqual(result['calculated_values']['range'], 220.6996, places=4)
 
     def test_calculate_meeting_point(self):
-        params = {
+        # Test case where they do not meet
+        params_no_meet = {
             'obj1': {'x0': 0, 'v0': 10, 'a': 2},
             'obj2': {'x0': 50, 'v0': 5, 'a': 3}
         }
-        result = self.calculator.calculate_meeting_point(params)
-        # 0.5 * (2-3) * t^2 + (10-5)*t + (0-50) = 0
-        # -0.5t^2 + 5t - 50 = 0
-        # t^2 - 10t + 100 = 0
-        # discriminant = 100 - 400 = -300 -> No real solution, so my manual calc is wrong
-        # Let's re-check the problem. The code should raise a ValueError here.
         with self.assertRaises(ValueError):
-            self.calculator.calculate_meeting_point(params)
+            self.calculator.calculate_meeting_point(params_no_meet)
 
         # New test case where they do meet
-        params = {
+        params_meet = {
             'obj1': {'x0': 0, 'v0': 20, 'a': 0},
             'obj2': {'x0': 100, 'v0': 10, 'a': 0}
         }
-        result = self.calculator.calculate_meeting_point(params)
+        result = self.calculator.calculate_meeting_point(params_meet)
         # 20t = 100 + 10t -> 10t = 100 -> t = 10
         self.assertAlmostEqual(result['calculated_values']['tiempo_encuentro'], 10)
         # position = 20 * 10 = 200
