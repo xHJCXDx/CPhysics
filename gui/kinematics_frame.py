@@ -24,7 +24,7 @@ class KinematicsFrame(QWidget):
         self.setup_ui()
         self.control_panel.on_movement_type_changed()
 
-    # Configuración de la interfaz gráfica
+    # Configuring the graphical interface
     def setup_ui(self):
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(15)
@@ -41,6 +41,13 @@ class KinematicsFrame(QWidget):
         kinematics_tab = self.control_panel.tab_widget.widget(0)
         control_panel_layout = kinematics_tab.findChild(QScrollArea).widget().layout()
         control_panel_layout.addWidget(self.results_panel)
+
+        # Add results panel to meeting panel's layout
+        meeting_tab = self.control_panel.tab_widget.widget(1)
+        meeting_panel_layout = meeting_tab.findChild(QScrollArea).widget().layout()
+        
+        self.results_panel_meeting = ResultsPanel()
+        meeting_panel_layout.addWidget(self.results_panel_meeting)
 
         splitter.addWidget(self.control_panel)
         splitter.addWidget(self.plot_panel)
@@ -72,7 +79,7 @@ class KinematicsFrame(QWidget):
     def calculate_meeting(self, params):
         try:
             self.results = self.calculator.calculate_meeting_point(params)
-            self.results_panel.display_results(self.results)
+            self.results_panel_meeting.display_results(self.results)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de encuentro:\n{str(e)}")
 
@@ -89,8 +96,9 @@ class KinematicsFrame(QWidget):
     def clear_all(self):
         if self.control_panel.tab_widget.currentIndex() == 0:
             self.control_panel.clear_fields()
+            self.results_panel.clear()
         else:
             self.control_panel.meeting_panel.clear_fields()
+            self.results_panel_meeting.clear()
         self.results = {}
-        self.results_panel.clear()
         self.plot_panel.clear_plot()
