@@ -29,7 +29,7 @@ class PlotPanel(QWidget):
 
         title = QLabel("Gráfico de Relaciones")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        title.setStyleSheet("color: #ecf0f1; padding: 5px 0px;")
+        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
@@ -59,7 +59,7 @@ class PlotPanel(QWidget):
             self.y_axis_combo.addItem(name, key)
 
         self.plot_btn = QPushButton("Graficar")
-        self.plot_btn.setStyleSheet('''QPushButton { background-color: #8e44ad; border: none; color: white; padding: 8px 16px; font-size: 12px; font-weight: bold; border-radius: 4px; min-width: 80px; } QPushButton:hover { background-color: #9b59b6; } QPushButton:pressed { background-color: #7d3c98; }''')
+        
 
         controls_layout.addWidget(QLabel("Eje X:"), 0, 0)
         controls_layout.addWidget(self.x_axis_combo, 0, 1)

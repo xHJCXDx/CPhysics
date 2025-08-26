@@ -33,7 +33,7 @@ class PlotPanel(QWidget):
 
         title = QLabel("Gráfico de la Onda")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        title.setStyleSheet("color: #ecf0f1; padding: 5px 0px;")
+        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 

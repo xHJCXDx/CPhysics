@@ -11,27 +11,14 @@ class ResultsPanel(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         
         group = QGroupBox("Resultados")
-        group.setStyleSheet("""
-            QGroupBox {
-                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; color: #ecf0f1; 
-                border: 1px solid #4a627a; border-radius: 5px;
-            }
-            QGroupBox::title {
-                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
-            }
-        """)
+        
         
         group_layout = QVBoxLayout(group)
         
         self.results_text = QTextEdit()
         self.results_text.setReadOnly(True)
         self.results_text.setMinimumHeight(200)
-        self.results_text.setStyleSheet("""
-            QTextEdit { 
-                background-color: #2c3e50; border: 1px solid #4a627a; border-radius: 4px; 
-                padding: 8px; font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; color: #ecf0f1; 
-            }
-        """)
+        
         
         group_layout.addWidget(self.results_text)
         layout.addWidget(group)

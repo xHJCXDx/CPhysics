@@ -53,7 +53,7 @@ class DynamicsFrame(QWidget):
 
         # Clear Button
         self.clear_btn = QPushButton("Limpiar Todo")
-        self.clear_btn.setStyleSheet('''QPushButton { background-color: #c0392b; border: none; color: white; padding: 8px 16px; font-size: 12px; font-weight: bold; border-radius: 4px; } QPushButton:hover { background-color: #e74c3c; }''')
+        
 
         # Add widgets to layout
         layout.addWidget(self.newton_panel)

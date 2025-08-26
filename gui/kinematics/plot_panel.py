@@ -21,7 +21,7 @@ class PlotPanel(QWidget):
         
         title = QLabel("Gráficos")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        title.setStyleSheet("color: #ecf0f1; padding: 5px 0px; border: none;")
+        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
