@@ -27,6 +27,14 @@ def main():
     except:
         pass  # Si no hay ícono, continuar sin él
     
+    # Cargar la hoja de estilos
+    try:
+        with open("gui/styles.qss", "r") as f:
+            style_sheet = f.read()
+            app.setStyleSheet(style_sheet)
+    except FileNotFoundError:
+        print("Advertencia: No se encontró el archivo de estilos 'gui/styles.qss'.")
+
     # Crear la ventana principal
     window = MainWindow()
     window.show()

@@ -17,7 +17,7 @@ class MeetingPanel(QWidget):
 
         title = QLabel("Cálculo de Encuentros")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        title.setStyleSheet("color: #ecf0f1; padding: 10px 0px; border: none;")
+        
         layout.addWidget(title)
 
         object1_group = self.create_object_group("Objeto 1", self.object1_fields)
@@ -27,14 +27,7 @@ class MeetingPanel(QWidget):
         layout.addWidget(object2_group)
 
         self.calculate_btn = QPushButton("Calcular Encuentro")
-        self.calculate_btn.setStyleSheet("""
-            QPushButton { 
-                background-color: #8e44ad; border: none; color: white; padding: 8px 16px; 
-                font-size: 12px; font-weight: bold; border-radius: 4px; min-width: 80px; 
-            }
-            QPushButton:hover { background-color: #9b59b6; }
-            QPushButton:pressed { background-color: #7d3c98; }
-        """)
+        
         self.calculate_btn.clicked.connect(self.on_calculate)
         layout.addWidget(self.calculate_btn)
 
@@ -42,18 +35,7 @@ class MeetingPanel(QWidget):
 
     def create_object_group(self, title, fields_dict):
         group = QGroupBox(title)
-        group.setStyleSheet("""
-            QGroupBox {
-                font-weight: bold; font-size: 12px; padding-top: 10px; margin-top: 5px;
-                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
-            }
-            QGroupBox::title {
-                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
-            }
-            QGroupBox QLabel {
-                color: #ecf0f1; font-size: 12px;
-            }
-        """)
+        
         
         layout = QGridLayout(group)
         layout.setSpacing(8)
@@ -67,18 +49,6 @@ class MeetingPanel(QWidget):
         for i, (var_name, label_text) in enumerate(params_info):
             label = QLabel(label_text)
             line_edit = QLineEdit()
-            line_edit.setStyleSheet("""
-                QLineEdit {
-                    background-color: #2c3e50;
-                    color: #ecf0f1;
-                    border: 1px solid #4a627a;
-                    border-radius: 4px;
-                    padding: 6px;
-                }
-                QLineEdit:focus {
-                    border: 1px solid #8e44ad;
-                }
-            """)
             
             fields_dict[var_name] = line_edit
             layout.addWidget(label, i, 0)

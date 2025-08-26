@@ -23,18 +23,7 @@ class EnergyPanel(QWidget):
 
     def create_energy_section(self):
         main_group = QGroupBox("Trabajo y Energía")
-        main_group.setStyleSheet("""
-            QGroupBox { font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 10px; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;}
-            QGroupBox::title { color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;}
-            QLineEdit {background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;}
-            QLineEdit:focus { border: 1px solid #8e44ad; }
-            QPushButton { background-color: #16a085; border: none; color: white; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-top: 5px;}
-            QPushButton:hover { background-color: #1abc9c; }
-            QPushButton:pressed { background-color: #148f77; }
-            QGroupBox QGroupBox { font-weight: bold; font-size: 12px; padding-top: 8px; margin-top: 5px; color: #bdc3c7; border: 1px solid #3e5062; border-radius: 5px;}
-            QGroupBox QGroupBox::title { color: #bdc3c7; }
-            QLabel { font-size: 12px; color: #ecf0f1; }
-        """)
+        
         main_layout = QVBoxLayout(main_group)
 
         # Work

@@ -34,17 +34,13 @@ class NewtonLawPanel(QWidget):
 
     def create_parameters_section(self):
         group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
-        group.setStyleSheet("""
-            QGroupBox { font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;}
-            QGroupBox::title { color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;}
-            QGroupBox QLabel {color: #ecf0f1; font-size: 12px;}
-        """)
+        
         layout = QGridLayout(group)
         params_info = [('f', 'Fuerza Aplicada (N):'), ('m', 'Masa (kg):'), ('a', 'Aceleración (m/s²):')]
         for i, (var, label) in enumerate(params_info):
             line_edit = QLineEdit()
             line_edit.setPlaceholderText("Valor conocido")
-            line_edit.setStyleSheet("QLineEdit {background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;} QLineEdit:focus { border: 1px solid #8e44ad; }")
+            
             self.input_fields[var] = line_edit
             layout.addWidget(QLabel(label), i, 0)
             layout.addWidget(line_edit, i, 1)
@@ -54,11 +50,9 @@ class NewtonLawPanel(QWidget):
         group = QGroupBox("Fricción (Opcional)")
         group.setCheckable(True)
         group.setChecked(False)
-        group.setStyleSheet("QGroupBox {font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;} QGroupBox::title {color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;} QGroupBox QLabel { color: #ecf0f1; font-size: 12px; }")
         layout = QGridLayout(group)
         self.mu_input = QLineEdit()
         self.mu_input.setPlaceholderText("ex. 0.2")
-        self.mu_input.setStyleSheet("QLineEdit {background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;} QLineEdit:focus { border: 1px solid #8e44ad; }")
         layout.addWidget(QLabel("Coeficiente de Fricción (μ):"), 0, 0)
         layout.addWidget(self.mu_input, 0, 1)
         self.friction_checkbox = group
@@ -70,11 +64,10 @@ class NewtonLawPanel(QWidget):
         group = QGroupBox("Plano Inclinado (Opcional)")
         group.setCheckable(True)
         group.setChecked(False)
-        group.setStyleSheet("QGroupBox {font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;} QGroupBox::title {color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;} QGroupBox QLabel { color: #ecf0f1; font-size: 12px; }")
         layout = QGridLayout(group)
         self.angle_input = QLineEdit()
         self.angle_input.setPlaceholderText("ex. 30")
-        self.angle_input.setStyleSheet("QLineEdit {background-color: #2c3e50; color: #ecf0f1; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;} QLineEdit:focus { border: 1px solid #8e44ad; }")
+        
         layout.addWidget(QLabel("Ángulo del Plano (θ°):"), 0, 0)
         layout.addWidget(self.angle_input, 0, 1)
         self.incline_checkbox = group
@@ -85,7 +78,6 @@ class NewtonLawPanel(QWidget):
     def create_action_buttons(self):
         layout = QHBoxLayout()
         self.calculate_btn = QPushButton("Calcular Ley de Newton")
-        self.calculate_btn.setStyleSheet("""QPushButton { background-color: #8e44ad; border: none; color: white; padding: 8px 16px; font-size: 12px; font-weight: bold; border-radius: 4px; min-width: 80px; } QPushButton:hover { background-color: #9b59b6; } QPushButton:pressed { background-color: #7d3c98; }""")
         self.calculate_btn.clicked.connect(self.calculate)
         layout.addWidget(self.calculate_btn)
         layout.addStretch()

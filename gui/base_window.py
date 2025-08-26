@@ -19,8 +19,7 @@ class MainWindow(QMainWindow):
         # Configurar la ventana principal
         self.setup_window()
         
-        # Configurar estilos
-        self.setup_styles()
+        
         
         # Crear la interfaz
         self.create_widgets()
@@ -47,57 +46,7 @@ class MainWindow(QMainWindow):
             (screen.height() - size.height()) // 2
         )
     
-    def setup_styles(self):
-        """Configurar estilos de la aplicación"""
-        # Aplicar hoja de estilos CSS-like
-        style_sheet = """
-            QMainWindow {
-                background-color: #2c3e50; /* Fondo principal oscuro */
-            }
-            
-            QLabel#title {
-                font-size: 24px;
-                font-weight: bold;
-                color: #ecf0f1; /* Texto claro */
-                padding: 10px;
-            }
-            
-            QPushButton#nav_button {
-                background-color: #34495e; /* Botones un poco más claros que el fondo */
-                border: none;
-                color: #ecf0f1; /* Texto claro */
-                padding: 12px 24px;
-                font-size: 14px;
-                font-weight: bold;
-                border-radius: 6px;
-                margin: 2px;
-            }
-            
-            QPushButton#nav_button:hover {
-                background-color: #4a627a;
-            }
-            
-            QPushButton#nav_button:pressed {
-                background-color: #2c3e50;
-            }
-            
-            QPushButton#nav_button:checked {
-                background-color: #8e44ad; /* Acento morado oscuro/púrpura */
-            }
-            
-            QFrame#separator {
-                background-color: #34495e; /* Separador oscuro */
-                max-height: 2px;
-                margin: 10px 0px;
-            }
-            
-            QWidget#content_area {
-                background-color: #34495e; /* Área de contenido oscura */
-                border-radius: 8px;
-                border: 1px solid #2c3e50;
-            }
-        """
-        self.setStyleSheet(style_sheet)
+    
     
     def create_widgets(self):
         """Crear los widgets principales de la ventana"""
@@ -190,11 +139,7 @@ class MainWindow(QMainWindow):
         
         label = QLabel(text)
         label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("""
-            font-size: 18px;
-            color: #7f8c8d;
-            font-style: italic;
-        """)
+        
         
         layout.addWidget(label)
         return widget

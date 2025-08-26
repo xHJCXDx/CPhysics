@@ -24,31 +24,12 @@ class ControlPanel(QWidget):
 
         title = QLabel("Cinemática")
         title.setFont(QFont("Arial", 16, QFont.Bold))
-        title.setStyleSheet("color: #ecf0f1; padding: 10px; border: none;")
+        
         title.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title)
 
         self.tab_widget = QTabWidget()
-        self.tab_widget.setStyleSheet("""
-            QTabWidget::pane { 
-                border-top: 2px solid #4a627a;
-            }
-            QTabBar::tab {
-                background: #2c3e50;
-                color: #ecf0f1;
-                padding: 10px;
-                border: 1px solid #4a627a;
-                border-bottom: none;
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-            }
-            QTabBar::tab:selected, QTabBar::tab:hover {
-                background: #34495e;
-            }
-            QTabBar::tab:selected {
-                border-color: #8e44ad;
-            }
-        """)
+        
 
         # Tab for standard kinematics
         kinematics_tab = QWidget()
@@ -101,15 +82,7 @@ class ControlPanel(QWidget):
 
     def create_movement_type_section(self):
         group = QGroupBox("Tipo de Movimiento")
-        group.setStyleSheet("""
-            QGroupBox {
-                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px;
-                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
-            }
-            QGroupBox::title {
-                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
-            }
-        """)
+        
         
         layout = QVBoxLayout(group)
         
@@ -117,9 +90,7 @@ class ControlPanel(QWidget):
         self.mrua_radio = QRadioButton("Movimiento Rectilíneo Uniformemente Acelerado (MRUA)")
         self.parabolic_radio = QRadioButton("Movimiento Parabólico")
         
-        radio_style = "QRadioButton { color: #ecf0f1; font-size: 12px; } QRadioButton::indicator { width: 15px; height: 15px; }"
-        for radio in [self.mru_radio, self.mrua_radio, self.parabolic_radio]:
-            radio.setStyleSheet(radio_style)
+        
 
         self.mru_radio.setChecked(True)
         
@@ -135,18 +106,7 @@ class ControlPanel(QWidget):
 
     def create_parameters_section(self):
         group = QGroupBox("Parámetros")
-        group.setStyleSheet("""
-            QGroupBox {
-                font-weight: bold; font-size: 14px; padding-top: 10px; margin-top: 5px;
-                color: #ecf0f1; border: 1px solid #4a627a; border-radius: 5px;
-            }
-            QGroupBox::title {
-                color: #ecf0f1; subcontrol-origin: margin; left: 10px; padding: 0 5px 0 5px;
-            }
-            QGroupBox QLabel {
-                color: #ecf0f1; font-size: 12px;
-            }
-        """)
+        
         
         self.params_layout = QGridLayout(group)
         self.params_layout.setSpacing(8)
@@ -166,18 +126,7 @@ class ControlPanel(QWidget):
             label = QLabel(label_text)
             line_edit = QLineEdit()
             line_edit.setEnabled(is_enabled)
-            line_edit.setStyleSheet("""
-                QLineEdit {
-                    background-color: #2c3e50;
-                    color: #ecf0f1;
-                    border: 1px solid #4a627a;
-                    border-radius: 4px;
-                    padding: 6px;
-                }
-                QLineEdit:focus {
-                    border: 1px solid #8e44ad;
-                }
-            """)
+            
             
             self.input_fields[var_name] = line_edit
             self.param_widgets[var_name] = (label, line_edit)
@@ -195,17 +144,7 @@ class ControlPanel(QWidget):
         self.clear_btn = QPushButton("Limpiar")
         self.plot_btn = QPushButton("Graficar")
         
-        button_style = """
-            QPushButton { 
-                background-color: #8e44ad; border: none; color: white; padding: 8px 16px; 
-                font-size: 12px; font-weight: bold; border-radius: 4px; min-width: 80px; 
-            }
-            QPushButton:hover { background-color: #9b59b6; }
-            QPushButton:pressed { background-color: #7d3c98; }
-        """
         
-        for btn in [self.calculate_btn, self.clear_btn, self.plot_btn]:
-            btn.setStyleSheet(button_style)
         
         self.calculate_btn.clicked.connect(self.calculate_requested)
         self.clear_btn.clicked.connect(self.clear_requested)
@@ -240,21 +179,10 @@ class ControlPanel(QWidget):
             self.input_fields['a'].setEnabled(is_mrua)
             if is_mru:
                 self.input_fields['a'].setText('0')
-                self.input_fields['a'].setStyleSheet("background-color: #2c3e50; color: #7f8c8d; border: 1px solid #4a627a; border-radius: 4px; padding: 6px;")
+                
             else:
                 self.input_fields['a'].setText('')
-                self.input_fields['a'].setStyleSheet("""
-                    QLineEdit {
-                        background-color: #2c3e50;
-                        color: #ecf0f1;
-                        border: 1px solid #4a627a;
-                        border-radius: 4px;
-                        padding: 6px;
-                    }
-                    QLineEdit:focus {
-                        border: 1px solid #8e44ad;
-                    }
-                """)
+                
 
         elif is_parabolic:
             # Mostrar parámetros para Movimiento Parabólico
