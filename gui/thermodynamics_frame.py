@@ -1,4 +1,3 @@
-
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QSplitter, QMessageBox, QScrollArea, QVBoxLayout
 from PySide6.QtCore import Qt
 
@@ -61,7 +60,7 @@ class ThermodynamicsFrame(QWidget):
 
     def clear_all(self):
         self.control_panel.clear_fields()
-        self.results_panel.clear_results()
+        self.results_panel.clear()
         self.results = {}
 
     def plot_results(self):

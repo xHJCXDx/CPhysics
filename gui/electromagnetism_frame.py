@@ -69,7 +69,7 @@ class ElectromagnetismFrame(QWidget):
 
     def clear_all(self):
         self.control_panel.clear_fields()
-        self.results_panel.clear_results()
+        self.results_panel.clear()
         self.plot_panel.clear_plot()
         self.results = {}
 

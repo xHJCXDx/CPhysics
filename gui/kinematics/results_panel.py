@@ -1,45 +1,19 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QTextEdit
-from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QTableWidgetItem
+from gui.base_results_panel import BaseResultsPanel
 
-class ResultsPanel(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        
-        group = QGroupBox("Resultados")
-        
-        
-        group_layout = QVBoxLayout(group)
-        
-        self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)
-        self.results_text.setMinimumHeight(200)
-        
-        
-        group_layout.addWidget(self.results_text)
-        layout.addWidget(group)
-
+class ResultsPanel(BaseResultsPanel):
     def display_results(self, results):
+        self.clear()
         if not results:
-            self.results_text.clear()
             return
 
         movement_type = results.get('movement_type')
-        text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO</b><br>"
-        text += "=" * 50 + "<br><br>"
-
         if movement_type == 'meeting_point':
-            self.display_meeting_point_results(results, text)
+            self.display_meeting_point_results(results)
         else:
-            self.display_standard_results(results, text)
+            self.display_standard_results(results)
 
-    def display_standard_results(self, results, text):
-        text += "<b>Parámetros utilizados:</b><br>"
-        text += "-" * 25 + "<br>"
+    def display_standard_results(self, results):
         param_map = {
             'x0': 'Posición inicial (m)', 'y0': 'Altura inicial (m)', 'v0': 'Velocidad inicial (m/s)', 
             'a': 'Aceleración (m/s²)', 't': 'Tiempo (s)', 
@@ -51,51 +25,73 @@ class ResultsPanel(QWidget):
             'v0x': 'Velocidad inicial en x (m/s)',
             'v0y': 'Velocidad inicial en y (m/s)'
         }
-        for key, value in results.get('input_params', {}).items():
-            if value is not None:
-                text += f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value}<br>"
-        
-        text += "<br><b>Resultados calculados:</b><br>"
-        text += "-" * 25 + "<br>"
-        for key, value in results.get('calculated_values', {}).items():
-            text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{param_map.get(key, key)}</span>: {value:.4f}<br>"
-        
-        if 'equations' in results:
-            text += "<br><b style='color:#9b59b6;'>Ecuaciones utilizadas:</b><br>"
-            text += "-" * 25 + "<br>"
-            for eq in results['equations']:
-                text += f"&nbsp;&nbsp;• {eq}<br>"
-        
-        self.results_text.setHtml(text)
 
-    def display_meeting_point_results(self, results, text):
-        text += "<b>Parámetros utilizados:</b><br>"
-        text += "-" * 25 + "<br>"
+        input_params = results.get('input_params', {})
+        calculated_values = results.get('calculated_values', {})
+        equations = results.get('equations', [])
+        
+        num_rows = len(input_params) + len(calculated_values) + len(equations)
+        self.results_table.setRowCount(num_rows)
+        
+        row = 0
+        for key, value in input_params.items():
+            if value is not None:
+                self.add_row(row, f"Parámetro: {param_map.get(key, key)}", str(value))
+                row += 1
+
+        for key, value in calculated_values.items():
+            self.add_row(row, f"Calculado: {param_map.get(key, key)}", f"{value:.4f}")
+            row += 1
+            
+        for eq in equations:
+            tooltip = self.get_equation_tooltip(eq)
+            self.add_row(row, "Ecuación", eq, tooltip)
+            row += 1
+
+    def display_meeting_point_results(self, results):
         param_map = {
             'x0': 'Posición inicial (m)', 'v0': 'Velocidad inicial (m/s)', 
             'a': 'Aceleración (m/s²)'
         }
-        for obj_name, params in results.get('input_params', {}).items():
-            text += f"<b>{obj_name}:</b><br>"
-            for key, value in params.items():
-                text += f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value}<br>"
         
-        text += "<br><b>Resultados calculados:</b><br>"
-        text += "-" * 25 + "<br>"
+        input_params = results.get('input_params', {})
+        calculated_values = results.get('calculated_values', {})
+        equations = results.get('equations', [])
+
+        num_rows = sum(len(p) for p in input_params.values()) + len(calculated_values) + len(equations)
+        self.results_table.setRowCount(num_rows)
+
+        row = 0
+        for obj_name, params in input_params.items():
+            for key, value in params.items():
+                self.add_row(row, f"Parámetro ({obj_name}): {param_map.get(key, key)}", str(value))
+                row += 1
+
         calculated_map = {
             'tiempo_encuentro': 'Tiempo de encuentro (s)',
             'posicion_encuentro': 'Posición de encuentro (m)'
         }
-        for key, value in results.get('calculated_values', {}).items():
-            text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{calculated_map.get(key, key)}</span>: {value:.4f}<br>"
+        for key, value in calculated_values.items():
+            self.add_row(row, f"Calculado: {calculated_map.get(key, key)}", f"{value:.4f}")
+            row += 1
+            
+        for eq in equations:
+            tooltip = self.get_equation_tooltip(eq)
+            self.add_row(row, "Ecuación", eq, tooltip)
+            row += 1
 
-        if 'equations' in results:
-            text += "<br><b style='color:#9b59b6;'>Ecuaciones utilizadas:</b><br>"
-            text += "-" * 25 + "<br>"
-            for eq in results['equations']:
-                text += f"&nbsp;&nbsp;• {eq}<br>"
-
-        self.results_text.setHtml(text)
-
-    def clear(self):
-        self.results_text.clear()
+    def get_variable_tooltips(self):
+        return {
+            'x': 'Posición final (m)', 'x0': 'Posición inicial (m)',
+            'y': 'Altura final (m)', 'y0': 'Altura inicial (m)',
+            'v': 'Velocidad final (m/s)', 'v0': 'Velocidad inicial (m/s)',
+            'a': 'Aceleración (m/s²)', 't': 'Tiempo (s)',
+            'g': 'Aceleración debida a la gravedad (9.8 m/s²)',
+            'v0x': 'Velocidad inicial en x (m/s)',
+            'v0y': 'Velocidad inicial en y (m/s)',
+            'vx': 'Velocidad en x (m/s)', 'vy': 'Velocidad en y (m/s)',
+            'θ': 'Ángulo de lanzamiento (°)',
+            't_vuelo': 'Tiempo de vuelo (s)',
+            'y_max': 'Altura máxima (m)',
+            'R': 'Alcance horizontal (m)'
+        }
