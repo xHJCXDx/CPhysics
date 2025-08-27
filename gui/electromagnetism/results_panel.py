@@ -1,53 +1,45 @@
-"""
-Panel de resultados para el módulo de electromagnetismo.
-"""
+from gui.base_results_panel import BaseResultsPanel
 
-from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QTextEdit
-
-class ResultsPanel(QGroupBox):
-    def __init__(self, parent=None):
-        super().__init__("Resultados", parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        
-        
-        layout = QVBoxLayout(self)
-        
-        self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)
-        self.results_text.setMinimumHeight(150)
-        
-        
-        layout.addWidget(self.results_text)
-
-    def display_results(self, results, input_fields):
-        if not results: return
+class ResultsPanel(BaseResultsPanel):
+    def display_results(self, results, input_fields=None):
+        self.clear()
+        if not results:
+            return
 
         calculated_values = results.get('calculated_values', {})
-        if calculated_values:
+        if calculated_values and input_fields:
             calculated_var, calculated_val = list(calculated_values.items())[0]
-            input_fields[calculated_var].setText(f"{calculated_val:.4e}")
+            if calculated_var in input_fields:
+                input_fields[calculated_var].setText(f"{calculated_val:.4e}")
 
-        text = "<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO</b><br>"
-        text += "=" * 50 + "<br><br>"
-
-        text += "<b>Parámetros utilizados:</b><br>"
-        text += "-" * 25 + "<br>"
         param_map = {'q1': 'Carga 1 (C)', 'q2': 'Carga 2 (C)', 'r': 'Distancia (m)', 'F': 'Fuerza (N)'}
-        for key, value in results.get('input_params', {}).items():
+
+        input_params = results.get('input_params', {})
+        equations = results.get('equations', [])
+        
+        num_rows = len(input_params) + len(calculated_values) + len(equations)
+        self.results_table.setRowCount(num_rows)
+        
+        row = 0
+        for key, value in input_params.items():
             if value is not None:
-                text += f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value:.4e}<br>"
+                self.add_row(row, f"Parámetro: {param_map.get(key, key)}", f"{value:.4e}")
+                row += 1
 
-        text += "<br><b>Resultado calculado:</b><br>"
-        text += "-" * 25 + "<br>"
         for key, value in calculated_values.items():
-            text += f"&nbsp;&nbsp;• <span style='color:#3498db;'>{param_map.get(key, key)}</span>: {value:.4e}<br>"
+            self.add_row(row, f"Calculado: {param_map.get(key, key)}", f"{value:.4e}")
+            row += 1
+            
+        for eq in equations:
+            tooltip = self.get_equation_tooltip(eq)
+            self.add_row(row, "Ecuación", eq, tooltip)
+            row += 1
 
-        text += "<br><b style='color:#9b59b6;'>Ecuación utilizada:</b><br>"
-        text += "-" * 25 + "<br>"
-        text += f"&nbsp;&nbsp;• {results['equations'][0]}<br>"
-        self.results_text.setHtml(text)
+    def get_variable_tooltips(self):
+        return {
+            'F': 'Fuerza eléctrica (N)', 'k': 'Constante de Coulomb (8.987e9 N·m²/C²)',
+            'q1': 'Carga 1 (C)', 'q2': 'Carga 2 (C)', 'r': 'Distancia (m)'
+        }
 
     def clear_results(self):
-        self.results_text.clear()
+        self.clear()

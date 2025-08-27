@@ -6,7 +6,7 @@ from modules.dynamics import DynamicsCalculator
 from utils.validators import InputValidator
 
 class NewtonLawPanel(QWidget):
-    calculation_ready = Signal(str)
+    calculation_ready = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -106,28 +106,9 @@ class NewtonLawPanel(QWidget):
                 calc_var, calc_val = list(calculated_values.items())[0]
                 self.input_fields[calc_var].setText(f"{calc_val:.4f}")
 
-            html_output = self.format_results_to_html(results)
-            self.calculation_ready.emit(html_output)
+            self.calculation_ready.emit(results)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
-
-    def format_results_to_html(self, results):
-        if not results: return ""
-        parts = ["<b style='font-size:13px;'>RESULTADOS DEL CÁLCULO (2ª Ley de Newton)</b><br>", "=" * 50 + "<br><br>"]
-        param_map = {'f': 'Fuerza Aplicada (N)', 'm': 'Masa (kg)', 'a': 'Aceleración (m/s²)', 'mu': 'Coef. Fricción (μ)', 'angle': 'Ángulo del Plano (°)'}
-        parts.append("<b>Parámetros utilizados:</b><br>" + "-" * 25 + "<br>")
-        for key, value in results.get('input_params', {}).items():
-            if value is not None: parts.append(f"&nbsp;&nbsp;• {param_map.get(key, key)}: {value}<br>")
-        parts.append("<br><b>Resultado calculado:</b><br>" + "-" * 25 + "<br>")
-        for key, value in results.get('calculated_values', {}).items():
-            parts.append(f"&nbsp;&nbsp;• <span style='color:#3498db;'>{param_map.get(key, key)}</span>: {value:.4f}<br>")
-        if results.get('normal_force') is not None:
-            parts.append(f"<br><b>Fuerza Normal:</b><br>" + "-" * 25 + f"<br>&nbsp;&nbsp;• F_normal: {results['normal_force']:.4f} N<br>")
-        if results.get('friction_force') is not None:
-            parts.append(f"<br><b>Fuerza de Fricción:</b><br>" + "-" * 25 + f"<br>&nbsp;&nbsp;• F_fricción: {results['friction_force']:.4f} N<br>")
-        parts.append("<br><b style='color:#9b59b6;'>Ecuaciones utilizadas:</b><br>" + "-" * 25 + "<br>")
-        for eq in results.get('equations', []): parts.append(f"&nbsp;&nbsp;• {eq}<br>")
-        return "".join(parts)
 
     @Slot()
     def clear(self):

@@ -66,9 +66,9 @@ class DynamicsFrame(QWidget):
         return scroll_area
 
     def connect_signals(self):
-        self.newton_panel.calculation_ready.connect(self.results_panel.display_html)
-        self.energy_panel.calculation_ready.connect(self.results_panel.display_html)
-        self.momentum_panel.calculation_ready.connect(self.results_panel.display_html)
+        self.newton_panel.calculation_ready.connect(self.results_panel.display_results)
+        self.energy_panel.calculation_ready.connect(self.results_panel.display_results)
+        self.momentum_panel.calculation_ready.connect(self.results_panel.display_results)
         self.clear_btn.clicked.connect(self.clear_all)
         self.plot_panel.plot_data_requested.connect(self.handle_plot_request)
 

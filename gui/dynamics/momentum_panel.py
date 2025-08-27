@@ -6,7 +6,7 @@ from modules.dynamics import DynamicsCalculator
 from utils.validators import InputValidator
 
 class MomentumPanel(QWidget):
-    calculation_ready = Signal(str)
+    calculation_ready = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -71,16 +71,8 @@ class MomentumPanel(QWidget):
             time = self.get_input_value('impulse_time')
             impulse = self.get_input_value('impulse_impulse')
             result = self.calculator.calculate_impulse(force, time, impulse)
-            if 'impulse' in result:
-                self.input_fields['impulse_impulse'].setText(f"{result['impulse']:.4f}")
-                html = self.format_result_to_html("Impulso", result['impulse'], result['equation'], {'Fuerza': force, 'Tiempo': time, 'Impulso': None})
-            elif 'force' in result:
-                self.input_fields['impulse_force'].setText(f"{result['force']:.4f}")
-                html = self.format_result_to_html("Fuerza (Impulso)", result['force'], result['equation'], {'Fuerza': None, 'Tiempo': time, 'Impulso': impulse})
-            elif 'time' in result:
-                self.input_fields['impulse_time'].setText(f"{result['time']:.4f}")
-                html = self.format_result_to_html("Tiempo (Impulso)", result['time'], result['equation'], {'Fuerza': force, 'Tiempo': None, 'Impulso': impulse})
-            self.calculation_ready.emit(html)
+            result['title'] = "Impulso"
+            self.calculation_ready.emit(result)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de impulso:\n{str(e)}")
 
@@ -91,29 +83,10 @@ class MomentumPanel(QWidget):
             velocity = self.get_input_value('momentum_velocity')
             momentum = self.get_input_value('momentum_momentum')
             result = self.calculator.calculate_linear_momentum(mass, velocity, momentum)
-            if 'momentum' in result:
-                self.input_fields['momentum_momentum'].setText(f"{result['momentum']:.4f}")
-                html = self.format_result_to_html("Momento Lineal", result['momentum'], result['equation'], {'Masa': mass, 'Velocidad': velocity, 'Momento': None})
-            elif 'mass' in result:
-                self.input_fields['momentum_mass'].setText(f"{result['mass']:.4f}")
-                html = self.format_result_to_html("Masa (Momento)", result['mass'], result['equation'], {'Masa': None, 'Velocidad': velocity, 'Momento': momentum})
-            elif 'velocity' in result:
-                self.input_fields['momentum_velocity'].setText(f"{result['velocity']:.4f}")
-                html = self.format_result_to_html("Velocidad (Momento)", result['velocity'], result['equation'], {'Masa': mass, 'Velocidad': None, 'Momento': momentum})
-            self.calculation_ready.emit(html)
+            result['title'] = "Momento Lineal"
+            self.calculation_ready.emit(result)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de momento lineal:\n{str(e)}")
-
-    def format_result_to_html(self, title, value, equation, params):
-        parts = [f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>", "=" * 50 + "<br><br>"]
-        parts.append("<b>Parámetros:</b><br>")
-        for name, val in params.items():
-            if val is not None: parts.append(f"&nbsp;&nbsp;• {name}: {val}<br>")
-        parts.append(f"<br><b>Ecuación:</b><br>&nbsp;&nbsp;• {equation}<br>")
-        unit_map = {"Impulso": "N·s", "Momento": "kg·m/s", "Fuerza": "N", "Tiempo": "s", "Masa": "kg", "Velocidad": "m/s"}
-        unit = next((u for k, u in unit_map.items() if k in title), "")
-        parts.append(f"<br><b>Resultado:</b><br>&nbsp;&nbsp;• <span style='color:#2ecc71;'>{title}</span>: {value:.4f} {unit}<br>")
-        return "".join(parts)
 
     @Slot()
     def clear(self):

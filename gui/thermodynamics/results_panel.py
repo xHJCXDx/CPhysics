@@ -1,34 +1,43 @@
-from PySide6.QtWidgets import QGroupBox, QVBoxLayout, QTextEdit
+from gui.base_results_panel import BaseResultsPanel
 
-class ResultsPanel(QGroupBox):
-    def __init__(self, parent=None):
-        super().__init__("Resultados", parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        
-        layout = QVBoxLayout(self)
-        self.results_text = QTextEdit()
-        self.results_text.setReadOnly(True)
-        self.results_text.setMinimumHeight(150)
-        
-        layout.addWidget(self.results_text)
-
+class ResultsPanel(BaseResultsPanel):
     def display_results(self, results):
+        self.clear()
         if not results:
-            self.results_text.setText("No hay resultados.")
             return
+
+        param_map = {
+            'P': 'Presión (Pa)', 'V': 'Volumen (m³)', 'n': 'Moles', 
+            'T': 'Temperatura (K)'
+        }
+
+        input_params = results.get('input_params', {})
+        calculated_values = results.get('calculated_values', {})
+        equations = results.get('equations', [])
         
-        txt = "Parámetros de entrada:\n"
-        for k, v in results['input_params'].items():
-            txt += f"  {k}: {v}\n"
-        txt += "\nResultado calculado:\n"
-        for k, v in results['calculated_values'].items():
-            txt += f"  {k}: {v}\n"
-        txt += "\nEcuaciones usadas:\n"
-        for eq in results['equations']:
-            txt += f"  {eq}\n"
-        self.results_text.setText(txt)
+        num_rows = len(input_params) + len(calculated_values) + len(equations)
+        self.results_table.setRowCount(num_rows)
+        
+        row = 0
+        for key, value in input_params.items():
+            if value is not None:
+                self.add_row(row, f"Parámetro: {param_map.get(key, key)}", str(value))
+                row += 1
+
+        for key, value in calculated_values.items():
+            self.add_row(row, f"Calculado: {param_map.get(key, key)}", f"{value:.4f}")
+            row += 1
+            
+        for eq in equations:
+            tooltip = self.get_equation_tooltip(eq)
+            self.add_row(row, "Ecuación", eq, tooltip)
+            row += 1
+
+    def get_variable_tooltips(self):
+        return {
+            'P': 'Presión (Pa)', 'V': 'Volumen (m³)', 'n': 'Número de moles',
+            'R': 'Constante de los gases ideales (8.314 J/(mol·K))', 'T': 'Temperatura (K)'
+        }
 
     def clear_results(self):
-        self.results_text.clear()
+        self.clear()

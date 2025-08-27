@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QGridLayout, QGroupBox, 
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QGridLayout, QGroupBox,
                                 QLabel, QLineEdit, QPushButton, QMessageBox)
 from PySide6.QtCore import Signal, Slot
 
@@ -6,7 +6,7 @@ from modules.dynamics import DynamicsCalculator
 from utils.validators import InputValidator
 
 class EnergyPanel(QWidget):
-    calculation_ready = Signal(str)
+    calculation_ready = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -83,8 +83,8 @@ class EnergyPanel(QWidget):
             distance = self.get_input_value('work_distance')
             angle = self.get_input_value('work_angle') or 0
             result = self.calculator.calculate_work(force, distance, angle)
-            html = self.format_result_to_html("Trabajo", result['work'], result['equation'], {'Fuerza': force, 'Distancia': distance, 'Ángulo': angle})
-            self.calculation_ready.emit(html)
+            result['title'] = "Trabajo"
+            self.calculation_ready.emit(result)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de trabajo:\n{str(e)}")
 
@@ -94,8 +94,8 @@ class EnergyPanel(QWidget):
             mass = self.get_input_value('ke_mass')
             velocity = self.get_input_value('ke_velocity')
             result = self.calculator.calculate_kinetic_energy(mass, velocity)
-            html = self.format_result_to_html("Energía Cinética", result['kinetic_energy'], result['equation'], {'Masa': mass, 'Velocidad': velocity})
-            self.calculation_ready.emit(html)
+            result['title'] = "Energía Cinética"
+            self.calculation_ready.emit(result)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de energía cinética:\n{str(e)}")
 
@@ -105,19 +105,10 @@ class EnergyPanel(QWidget):
             mass = self.get_input_value('pe_mass')
             height = self.get_input_value('pe_height')
             result = self.calculator.calculate_potential_energy(mass, height)
-            html = self.format_result_to_html("Energía Potencial", result['potential_energy'], result['equation'], {'Masa': mass, 'Altura': height})
-            self.calculation_ready.emit(html)
+            result['title'] = "Energía Potencial"
+            self.calculation_ready.emit(result)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de energía potencial:\n{str(e)}")
-
-    def format_result_to_html(self, title, value, equation, params):
-        parts = [f"<b style='font-size:13px;'>RESULTADO - {title.upper()}</b><br>", "=" * 50 + "<br><br>"]
-        parts.append("<b>Parámetros:</b><br>")
-        for name, val in params.items():
-            if val is not None: parts.append(f"&nbsp;&nbsp;• {name}: {val}<br>")
-        parts.append(f"<br><b>Ecuación:</b><br>&nbsp;&nbsp;• {equation}<br>")
-        parts.append(f"<br><b>Resultado:</b><br>&nbsp;&nbsp;• <span style='color:#2ecc71;'>{title}</span>: {value:.4f} Joules<br>")
-        return "".join(parts)
 
     @Slot()
     def clear(self):
