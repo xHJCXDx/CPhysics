@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
                                 QScrollArea, QTabWidget)
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
+import numpy as np
 
 from gui.kinematics.meeting_panel import MeetingPanel
 
@@ -11,6 +12,7 @@ class ControlPanel(QWidget):
     clear_requested = Signal()
     plot_requested = Signal()
     calculate_meeting_requested = Signal(dict)
+    values_changed = Signal(dict)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -126,6 +128,7 @@ class ControlPanel(QWidget):
             label = QLabel(label_text)
             line_edit = QLineEdit()
             line_edit.setEnabled(is_enabled)
+            line_edit.textChanged.connect(self._on_values_changed)
             
             
             self.input_fields[var_name] = line_edit
@@ -192,6 +195,8 @@ class ControlPanel(QWidget):
                 label.setVisible(True)
                 line_edit.setVisible(True)
                 line_edit.setEnabled(True)
+        
+        self._on_values_changed()
 
     def get_input_values(self, validator):
         params = {}
@@ -213,3 +218,30 @@ class ControlPanel(QWidget):
         self.on_movement_type_changed()
         if hasattr(self, 'meeting_panel'):
             self.meeting_panel.clear_fields()
+
+    def _on_values_changed(self):
+        try:
+            if self.mru_radio.isChecked():
+                v0 = float(self.input_fields['v0'].text() or 0)
+                velocity = (v0, 0)
+                acceleration = (0, 0)
+            elif self.mrua_radio.isChecked():
+                v0 = float(self.input_fields['v0'].text() or 0)
+                a = float(self.input_fields['a'].text() or 0)
+                velocity = (v0, 0)
+                acceleration = (a, 0)
+            elif self.parabolic_radio.isChecked():
+                v0 = float(self.input_fields['v0'].text() or 0)
+                angle = float(self.input_fields['angle'].text() or 0)
+                angle_rad = np.deg2rad(angle)
+                vx = v0 * np.cos(angle_rad)
+                vy = v0 * np.sin(angle_rad)
+                velocity = (vx, vy)
+                acceleration = (0, -9.81) # Gravity
+            else:
+                velocity = (0, 0)
+                acceleration = (0, 0)
+
+            self.values_changed.emit({'velocity': velocity, 'acceleration': acceleration})
+        except (ValueError, TypeError):
+            self.values_changed.emit({'velocity': (0,0), 'acceleration': (0,0)})
