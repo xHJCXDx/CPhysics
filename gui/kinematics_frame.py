@@ -12,6 +12,7 @@ from utils.validators import InputValidator
 from gui.kinematics.control_panel import ControlPanel
 from gui.kinematics.results_panel import ResultsPanel
 from gui.kinematics.plot_panel import PlotPanel
+from gui.kinematics.diagram_panel import DiagramPanel
 
 class KinematicsFrame(QWidget):
     def __init__(self, parent=None):
@@ -36,6 +37,12 @@ class KinematicsFrame(QWidget):
         self.control_panel = ControlPanel()
         self.results_panel = ResultsPanel()
         self.plot_panel = PlotPanel()
+        self.diagram_panel = DiagramPanel()
+
+        # Create a tab widget for the plots
+        self.plot_tabs = QTabWidget()
+        self.plot_tabs.addTab(self.plot_panel, "Gráficos de Movimiento")
+        self.plot_tabs.addTab(self.diagram_panel, "Diagrama de Vectores")
 
         # Add results panel to control panel's layout
         kinematics_tab = self.control_panel.tab_widget.widget(0)
@@ -50,7 +57,7 @@ class KinematicsFrame(QWidget):
         meeting_panel_layout.addWidget(self.results_panel_meeting)
 
         splitter.addWidget(self.control_panel)
-        splitter.addWidget(self.plot_panel)
+        splitter.addWidget(self.plot_tabs)
         
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 2)
@@ -59,6 +66,8 @@ class KinematicsFrame(QWidget):
         self.control_panel.clear_requested.connect(self.clear_all)
         self.control_panel.plot_requested.connect(self.plot_results)
         self.control_panel.calculate_meeting_requested.connect(self.calculate_meeting)
+        self.control_panel.values_changed.connect(self.update_diagram)
+
 
     def calculate(self):
         try:
@@ -102,3 +111,19 @@ class KinematicsFrame(QWidget):
             self.results_panel_meeting.clear()
         self.results = {}
         self.plot_panel.clear_plot()
+        self.diagram_panel.clear_diagram()
+
+    def update_diagram(self, values):
+        try:
+            velocity = values.get('velocity')
+            acceleration = values.get('acceleration')
+            
+            vx = float(velocity[0]) if velocity[0] else 0
+            vy = float(velocity[1]) if velocity[1] else 0
+            
+            ax = float(acceleration[0]) if acceleration[0] else 0
+            ay = float(acceleration[1]) if acceleration[1] else 0
+
+            self.diagram_panel.update_diagram(velocity=(vx, vy), acceleration=(ax, ay))
+        except (ValueError, TypeError):
+            self.diagram_panel.clear_diagram()
