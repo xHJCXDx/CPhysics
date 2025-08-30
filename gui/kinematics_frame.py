@@ -89,6 +89,7 @@ class KinematicsFrame(QWidget):
         try:
             self.results = self.calculator.calculate_meeting_point(params)
             self.results_panel_meeting.display_results(self.results)
+            self.update_diagram(meeting_data=self.results)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error en el cálculo de encuentro:\n{str(e)}")
 
@@ -113,17 +114,20 @@ class KinematicsFrame(QWidget):
         self.plot_panel.clear_plot()
         self.diagram_panel.clear_diagram()
 
-    def update_diagram(self, values):
+    def update_diagram(self, values=None, meeting_data=None):
         try:
-            velocity = values.get('velocity')
-            acceleration = values.get('acceleration')
-            
-            vx = float(velocity[0]) if velocity[0] else 0
-            vy = float(velocity[1]) if velocity[1] else 0
-            
-            ax = float(acceleration[0]) if acceleration[0] else 0
-            ay = float(acceleration[1]) if acceleration[1] else 0
+            if meeting_data:
+                self.diagram_panel.update_diagram(meeting_data=meeting_data)
+            elif values:
+                velocity = values.get('velocity')
+                acceleration = values.get('acceleration')
+                
+                vx = float(velocity[0]) if velocity and velocity[0] else 0
+                vy = float(velocity[1]) if velocity and velocity[1] else 0
+                
+                ax = float(acceleration[0]) if acceleration and acceleration[0] else 0
+                ay = float(acceleration[1]) if acceleration and acceleration[1] else 0
 
-            self.diagram_panel.update_diagram(velocity=(vx, vy), acceleration=(ax, ay))
+                self.diagram_panel.update_diagram(velocity=(vx, vy), acceleration=(ax, ay))
         except (ValueError, TypeError):
             self.diagram_panel.clear_diagram()
