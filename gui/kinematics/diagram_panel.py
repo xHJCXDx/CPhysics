@@ -75,23 +75,23 @@ class DiagramPanel(QWidget):
         x0_2 = obj2_params['x0']
         pos_enq = results['posicion_encuentro']
 
-        # Determinar los límites del gráfico
+        # Determine the graph limits
         all_x = [x0_1, x0_2, pos_enq]
         x_min, x_max = min(all_x), max(all_x)
         padding = (x_max - x_min) * 0.2 if (x_max - x_min) > 0 else 5
         self.ax.set_xlim(x_min - padding, x_max + padding)
         self.ax.set_ylim(-5, 5)
 
-        # Dibujar los objetos y el punto de encuentro
+        # Draw the objects and the meeting point
         self.ax.plot(x0_1, 0, 'o', markersize=10, color='royalblue', label='Objeto 1 (Inicio)')
         self.ax.plot(x0_2, 0, 's', markersize=10, color='seagreen', label='Objeto 2 (Inicio)')
         self.ax.plot(pos_enq, 0, 'X', markersize=12, color='gold', label=f'Encuentro ({pos_enq:.2f} m)')
 
-        # Líneas de trayectoria
+        # Trajectory lines
         self.ax.plot([x0_1, pos_enq], [0, 0], '--', color='royalblue')
         self.ax.plot([x0_2, pos_enq], [0, 0], '--', color='seagreen')
         
-        # Anotaciones
+        # Annotations
         self.ax.text(x0_1, 0.5, f'x₀_₁={x0_1}', color='white', ha='center')
         self.ax.text(x0_2, 0.5, f'x₀_₂={x0_2}', color='white', ha='center')
         self.ax.text(pos_enq, -0.5, f't={results["tiempo_encuentro"]:.2f}s', color='gold', ha='center')

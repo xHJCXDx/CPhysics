@@ -1,6 +1,6 @@
 """
-Ventana principal de la aplicación CPHYSICS
-Contiene la navegación y el contenedor para los diferentes módulos
+Main window of the CPHYSICS application
+Contains the navigation and the container for the different modules
 """
 
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
@@ -16,29 +16,29 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        # Configurar la ventana principal
+        # Configure the main window
         self.setup_window()
         
         
         
-        # Crear la interfaz
+        # Create the interface
         self.create_widgets()
         
-        # Establecer el estado inicial en la primera pestaña
+        # Set the initial state on the first tab
         self.show_kinematics()
         
     
     def setup_window(self):
-        """Configurar propiedades básicas de la ventana"""
-        self.setWindowTitle("CPHYSICS - Física Computacional")
+        """Configure basic window properties"""
+        self.setWindowTitle("CPHYSICS - Computational Physics")
         self.setMinimumSize(QSize(1000, 700))
         self.resize(1200, 800)
         
-        # Centrar la ventana en la pantalla
+        # Center the window on the screen
         self.center_window()
     
     def center_window(self):
-        """Centrar la ventana en la pantalla"""
+        """Center the window on the screen"""
         screen = self.screen().availableGeometry()
         size = self.geometry()
         self.move(
@@ -49,80 +49,80 @@ class MainWindow(QMainWindow):
     
     
     def create_widgets(self):
-        """Crear los widgets principales de la ventana"""
-        # Widget central
+        """Create the main widgets of the window"""
+        # Central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
-        # Layout principal
+        # Main layout
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(10)
         
-        # Título de la aplicación
-        title_label = QLabel("CPHYSICS - Física Computacional")
+        # Application title
+        title_label = QLabel("CPHYSICS - Computational Physics")
         title_label.setObjectName("title")
         title_label.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title_label)
         
-        # Barra de navegación
+        # Navigation bar
         nav_layout = self.create_navigation()
         main_layout.addLayout(nav_layout)
         
-        # Separador
+        # Separator
         separator = QFrame()
         separator.setObjectName("separator")
         separator.setFrameShape(QFrame.HLine)
         main_layout.addWidget(separator)
         
-        # Área de contenido con stack widget para cambiar entre módulos
+        # Content area with stack widget to switch between modules
         self.content_stack = QStackedWidget()
         self.content_stack.setObjectName("content_area")
         main_layout.addWidget(self.content_stack)
         
-        # Crear los módulos
+        # Create the modules
         self.create_modules()
     
     def create_navigation(self):
-        """Crear barra de navegación"""
+        """Create navigation bar"""
         nav_layout = QHBoxLayout()
         nav_layout.setSpacing(10)
         
-        # Lista de módulos con sus nombres y funciones
+        # List of modules with their names and functions
         modules_info = [
-            ("Cinemática", self.show_kinematics),
-            ("Dinámica", self.show_dynamics),
-            ("Termodinámica", self.show_thermodynamics),
-            ("Ondas", self.show_waves),
-            ("Electromagnetismo", self.show_electromagnetism)
+            ("Kinematics", self.show_kinematics),
+            ("Dynamics", self.show_dynamics),
+            ("Thermodynamics", self.show_thermodynamics),
+            ("Waves", self.show_waves),
+            ("Electromagnetism", self.show_electromagnetism)
         ]
         
-        # Crear botones de navegación
+        # Create navigation buttons
         self.nav_buttons = []
         for name, callback in modules_info:
             button = QPushButton(name)
             button.setObjectName("nav_button")
-            button.setCheckable(True)  # Para poder marcar el botón activo
+            button.setCheckable(True)  # To be able to mark the active button
             button.clicked.connect(callback)
             nav_layout.addWidget(button)
             self.nav_buttons.append(button)
         
-        # Agregar espacio flexible al final
+        # Add flexible space at the end
         nav_layout.addStretch()
         
         return nav_layout
     
     def create_modules(self):
-        """Crear todos los módulos y agregarlos al stack"""
-        # Módulo de cinemática
+        """Create all modules and add them to the stack"""
+        # Kinematics module
         self.kinematics_frame = KinematicsFrame(self.content_stack)
         self.content_stack.addWidget(self.kinematics_frame)
         
-        # Módulo de dinámica
+        # Dynamics module
         self.dynamics_frame = DynamicsFrame(self.content_stack)
         self.content_stack.addWidget(self.dynamics_frame)
         
-        # Módulo de termodinámica
+        # Thermodynamics module
         self.thermodynamics_frame = ThermodynamicsFrame(self.content_stack)
         self.content_stack.addWidget(self.thermodynamics_frame)
         
@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(self.electromagnetism_frame)
     
     def create_placeholder(self, text, parent=None):
-        """Crear un widget placeholder para módulos en desarrollo"""
+        """Create a placeholder widget for modules in development"""
         widget = QWidget(parent)
         layout = QVBoxLayout(widget)
         
@@ -145,31 +145,31 @@ class MainWindow(QMainWindow):
         return widget
     
     def set_active_button(self, active_index):
-        """Marcar el botón activo en la navegación"""
+        """Mark the active button in the navigation"""
         for i, button in enumerate(self.nav_buttons):
             button.setChecked(i == active_index)
     
     def show_kinematics(self):
-        """Mostrar el módulo de cinemática"""
+        """Show the kinematics module"""
         self.content_stack.setCurrentWidget(self.kinematics_frame)
         self.set_active_button(0)
     
     def show_dynamics(self):
-        """Mostrar el módulo de dinámica"""
+        """Show the dynamics module"""
         self.content_stack.setCurrentWidget(self.dynamics_frame)
         self.set_active_button(1)
     
     def show_thermodynamics(self):
-        """Mostrar el módulo de termodinámica"""
+        """Show the thermodynamics module"""
         self.content_stack.setCurrentWidget(self.thermodynamics_frame)
         self.set_active_button(2)
     
     def show_waves(self):
-        """Mostrar el módulo de ondas"""
+        """Show the waves module"""
         self.content_stack.setCurrentWidget(self.waves_frame)
         self.set_active_button(3)
     
     def show_electromagnetism(self):
-        """Mostrar el módulo de electromagnetismo"""
+        """Show the electromagnetism module"""
         self.content_stack.setCurrentWidget(self.electromagnetism_frame)
         self.set_active_button(4)

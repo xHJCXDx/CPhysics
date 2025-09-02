@@ -68,4 +68,4 @@ class ThermodynamicsFrame(QWidget):
             input_values = self.control_panel.get_input_values()
             self.plot_panel.plot(input_values, self.calculator)
         except Exception as e:
-            QMessageBox.critical(self, "Error de Graficación", f"No se pudo generar el gráfico: {e}")
+            QMessageBox.critical(self, "Plotting Error", f"Could not generate plot: {e}")

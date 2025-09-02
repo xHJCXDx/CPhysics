@@ -1,4 +1,3 @@
-
 import numpy as np
 import seaborn as sns
 from matplotlib.figure import Figure
@@ -27,7 +26,7 @@ class PlotPanel(QWidget):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(10)
 
-        title = QLabel("Gráfico de Relaciones")
+        title = QLabel("Relationship Plot")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         
         title.setAlignment(Qt.AlignCenter)
@@ -50,20 +49,20 @@ class PlotPanel(QWidget):
         self.x_axis_combo = QComboBox()
         self.y_axis_combo = QComboBox()
         self.constant_value_input = QLineEdit()
-        self.constant_value_input.setPlaceholderText("Valor de la constante")
-        self.constant_label = QLabel("Constante:")
+        self.constant_value_input.setPlaceholderText("Value of the constant")
+        self.constant_label = QLabel("Constant:")
 
-        variables = {"Fuerza": "f", "Masa": "m", "Aceleración": "a"}
+        variables = {"Force": "f", "Mass": "m", "Acceleration": "a"}
         for name, key in variables.items():
             self.x_axis_combo.addItem(name, key)
             self.y_axis_combo.addItem(name, key)
 
-        self.plot_btn = QPushButton("Graficar")
+        self.plot_btn = QPushButton("Plot")
         
 
-        controls_layout.addWidget(QLabel("Eje X:"), 0, 0)
+        controls_layout.addWidget(QLabel("X-Axis:"), 0, 0)
         controls_layout.addWidget(self.x_axis_combo, 0, 1)
-        controls_layout.addWidget(QLabel("Eje Y:"), 1, 0)
+        controls_layout.addWidget(QLabel("Y-Axis:"), 1, 0)
         controls_layout.addWidget(self.y_axis_combo, 1, 1)
         controls_layout.addWidget(self.constant_label, 2, 0)
         controls_layout.addWidget(self.constant_value_input, 2, 1)
@@ -81,10 +80,10 @@ class PlotPanel(QWidget):
         constant_text = self.constant_value_input.text().strip()
 
         if x_var == y_var:
-            QMessageBox.warning(self, "Selección Inválida", "Las variables de los ejes X e Y no pueden ser iguales.")
+            QMessageBox.warning(self, "Invalid Selection", "The X and Y axis variables cannot be the same.")
             return
         if not constant_text or not self.validator.is_valid_number(constant_text):
-            QMessageBox.warning(self, "Valor Inválido", "Por favor, ingrese un valor numérico válido para la constante.")
+            QMessageBox.warning(self, "Invalid Value", "Please enter a valid numeric value for the constant.")
             return
         
         self.plot_data_requested.emit(x_var, y_var, constant_text)
@@ -95,7 +94,7 @@ class PlotPanel(QWidget):
             plot_data = self.calculator.generate_custom_plot_data(**plot_params)
             self.draw_plot(plot_data)
         except Exception as e:
-            QMessageBox.critical(self, "Error al Graficar", f"Ocurrió un error inesperado al generar el gráfico:\n{e}")
+            QMessageBox.critical(self, "Plotting Error", f"An unexpected error occurred while generating the plot:\n{e}")
 
     def draw_plot(self, plot_data):
         self.figure.clear()
@@ -106,7 +105,7 @@ class PlotPanel(QWidget):
             "xtick.color": "#ecf0f1", "ytick.color": "#ecf0f1", "grid.color": "#4a627a",
         })
         ax = self.figure.add_subplot(1, 1, 1)
-        sns.lineplot(x=plot_data['x_data'], y=plot_data['y_data'], ax=ax, color='#e74c3c', linewidth=2.5, label='Relación teórica')
+        sns.lineplot(x=plot_data['x_data'], y=plot_data['y_data'], ax=ax, color='#e74c3c', linewidth=2.5, label='Theoretical relationship')
         ax.set_xlabel(plot_data['x_label'], fontsize=12)
         ax.set_ylabel(plot_data['y_label'], fontsize=12)
         ax.set_title(plot_data['title'], fontsize=14, fontweight='bold')
@@ -119,9 +118,9 @@ class PlotPanel(QWidget):
         self.figure.clear()
         self.figure.set_facecolor('#34495e')
         ax = self.figure.add_subplot(1, 1, 1)
-        ax.set_title("Gráfico de Relaciones")
-        ax.set_xlabel("Seleccione variable para el eje X")
-        ax.set_ylabel("Seleccione variable para el eje Y")
+        ax.set_title("Relationship Plot")
+        ax.set_xlabel("Select variable for X-axis")
+        ax.set_ylabel("Select variable for Y-axis")
         self.canvas.draw()
 
     def update_constant_variable(self):
@@ -130,10 +129,10 @@ class PlotPanel(QWidget):
         all_vars = {"f", "m", "a"}
         selected_vars = {x_var, y_var}
         if len(selected_vars) < 2:
-            self.constant_label.setText("Inválido")
+            self.constant_label.setText("Invalid")
             self.constant_value_input.setEnabled(False)
             return
         constant_var_key = list(all_vars - selected_vars)[0]
-        var_map = {"f": "Fuerza (N)", "m": "Masa (kg)", "a": "Aceleración (m/s²)"}
-        self.constant_label.setText(f"{var_map[constant_var_key]} (constante):")
+        var_map = {"f": "Force (N)", "m": "Mass (kg)", "a": "Acceleration (m/s²)"}
+        self.constant_label.setText(f"{var_map[constant_var_key]} (constant):")
         self.constant_value_input.setEnabled(True)

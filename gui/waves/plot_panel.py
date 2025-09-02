@@ -13,7 +13,7 @@ class MplCanvas(FigureCanvas):
         super(MplCanvas, self).__init__(fig)
         self.setParent(parent)
         
-        # Estilo oscuro para el gráfico
+        # Dark style for the plot
         fig.patch.set_facecolor('#34495e')
         self.axes.set_facecolor('#2c3e50')
         self.axes.tick_params(axis='x', colors='#ecf0f1')

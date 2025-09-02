@@ -1,5 +1,5 @@
 """
-Panel de control para el módulo de electromagnetismo.
+Control panel for the electromagnetism module.
 """
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -14,46 +14,46 @@ class ControlPanel(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        """Configurar la interfaz de usuario"""
+        """Set up the user interface"""
         main_layout = QVBoxLayout(self)
         main_layout.setSpacing(15)
         
-        # Título del módulo
-        title = QLabel("Electromagnetismo - Ley de Coulomb")
+                # Module title
+        title = QLabel("Electromagnetism - Coulomb's Law")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         
         title.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(title)
         
-        # Sección de parámetros
+        # Parameters section
         params_group = self.create_parameters_section()
         main_layout.addWidget(params_group)
         
-        # Botones de acción
+        # Action buttons
         buttons_layout = self.create_action_buttons()
         main_layout.addLayout(buttons_layout)
         
         main_layout.addStretch()
 
     def create_parameters_section(self):
-        """Crear sección de parámetros"""
-        group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
+        """Create parameters section"""
+        group = QGroupBox("Parameters (leave one blank to calculate)")
         
         
         layout = QGridLayout(group)
         layout.setSpacing(8)
         
         params_info = [
-            ('q1', 'Carga 1 (C):'),
-            ('q2', 'Carga 2 (C):'),
-            ('r', 'Distancia (m):'),
-            ('F', 'Fuerza (N):'),
+            ('q1', 'Charge 1 (C):'),
+            ('q2', 'Charge 2 (C):'),
+            ('r', 'Distance (m):'),
+            ('F', 'Force (N):'),
         ]
         
         for i, (var_name, label_text) in enumerate(params_info):
             label = QLabel(label_text)
             line_edit = QLineEdit()
-            line_edit.setPlaceholderText("Valor conocido")
+            line_edit.setPlaceholderText("Known value")
             
             self.input_fields[var_name] = line_edit
             layout.addWidget(label, i, 0)
@@ -62,13 +62,13 @@ class ControlPanel(QWidget):
         return group
 
     def create_action_buttons(self):
-        """Crear botones de acción"""
+        """Create action buttons"""
         layout = QHBoxLayout()
         layout.setSpacing(10)
         
-        self.calculate_btn = QPushButton("Calcular")
-        self.clear_btn = QPushButton("Limpiar")
-        self.plot_btn = QPushButton("Graficar")
+        self.calculate_btn = QPushButton("Calculate")
+        self.clear_btn = QPushButton("Clear")
+        self.plot_btn = QPushButton("Plot")
         
         
         
@@ -80,7 +80,7 @@ class ControlPanel(QWidget):
         return layout
 
     def get_input_values(self, validator):
-        """Obtener valores de entrada del formulario"""
+        """Get input values from the form"""
         params = {}
         for var_name, field in self.input_fields.items():
             text = field.text().strip()
@@ -88,6 +88,6 @@ class ControlPanel(QWidget):
         return params
 
     def clear_fields(self):
-        """Limpiar todos los campos de entrada"""
+        """Clear all input fields"""
         for field in self.input_fields.values():
             field.clear()

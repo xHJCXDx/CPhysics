@@ -1,6 +1,6 @@
 """
-Interfaz gráfica para el módulo de cinemática
-Permite calcular y visualizar problemas de movimiento
+Graphical interface for the kinematics module
+Allows calculating and visualizing motion problems
 """
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QSplitter, QMessageBox, QScrollArea, QTabWidget)
@@ -41,8 +41,8 @@ class KinematicsFrame(QWidget):
 
         # Create a tab widget for the plots
         self.plot_tabs = QTabWidget()
-        self.plot_tabs.addTab(self.plot_panel, "Gráficos de Movimiento")
-        self.plot_tabs.addTab(self.diagram_panel, "Diagrama de Vectores")
+        self.plot_tabs.addTab(self.plot_panel, "Motion Graphs")
+        self.plot_tabs.addTab(self.diagram_panel, "Vector Diagram")
 
         # Add results panel to control panel's layout
         kinematics_tab = self.control_panel.tab_widget.widget(0)
@@ -83,7 +83,7 @@ class KinematicsFrame(QWidget):
             self.results_panel.display_results(self.results)
             
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in calculation:\n{str(e)}")
 
     def calculate_meeting(self, params):
         try:
@@ -91,17 +91,17 @@ class KinematicsFrame(QWidget):
             self.results_panel_meeting.display_results(self.results)
             self.update_diagram(meeting_data=self.results)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo de encuentro:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in meeting calculation:\n{str(e)}")
 
     def plot_results(self):
         if not self.results:
-            QMessageBox.warning(self, "Advertencia", "Primero debe realizar un cálculo")
+            QMessageBox.warning(self, "Warning", "You must first perform a calculation")
             return
         
         try:
             self.plot_panel.plot_results(self.calculator, self.results)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error al generar gráfico:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error generating graph:\n{str(e)}")
 
     def clear_all(self):
         if self.control_panel.tab_widget.currentIndex() == 0:
