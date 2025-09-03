@@ -22,48 +22,48 @@ class EnergyPanel(QWidget):
         layout.addWidget(energy_group)
 
     def create_energy_section(self):
-        main_group = QGroupBox("Trabajo y Energía")
+        main_group = QGroupBox("Work and Energy")
         
         main_layout = QVBoxLayout(main_group)
 
         # Work
-        work_group = QGroupBox("Calcular Trabajo (W)")
+        work_group = QGroupBox("Calculate Work (W)")
         work_layout = QGridLayout(work_group)
-        work_params = {'work_force': 'Fuerza (N):', 'work_distance': 'Distancia (m):', 'work_angle': 'Ángulo (θ°):'}
+        work_params = {'work_force': 'Force (N):', 'work_distance': 'Distance (m):', 'work_angle': 'Angle (θ°):'}
         for i, (key, label) in enumerate(work_params.items()):
             work_layout.addWidget(QLabel(label), i, 0)
             line_edit = QLineEdit()
             self.input_fields[key] = line_edit
             work_layout.addWidget(line_edit, i, 1)
-        calc_work_btn = QPushButton("Calcular Trabajo")
+        calc_work_btn = QPushButton("Calculate Work")
         calc_work_btn.clicked.connect(self.calculate_work)
         work_layout.addWidget(calc_work_btn, len(work_params), 0, 1, 2)
         main_layout.addWidget(work_group)
 
         # Kinetic Energy
-        ke_group = QGroupBox("Calcular Energía Cinética (KE)")
+        ke_group = QGroupBox("Calculate Kinetic Energy (KE)")
         ke_layout = QGridLayout(ke_group)
-        ke_params = {'ke_mass': 'Masa (kg):', 'ke_velocity': 'Velocidad (m/s):'}
+        ke_params = {'ke_mass': 'Mass (kg):', 'ke_velocity': 'Velocity (m/s):'}
         for i, (key, label) in enumerate(ke_params.items()):
             ke_layout.addWidget(QLabel(label), i, 0)
             line_edit = QLineEdit()
             self.input_fields[key] = line_edit
             ke_layout.addWidget(line_edit, i, 1)
-        calc_ke_btn = QPushButton("Calcular Energía Cinética")
+        calc_ke_btn = QPushButton("Calculate Kinetic Energy")
         calc_ke_btn.clicked.connect(self.calculate_kinetic_energy)
         ke_layout.addWidget(calc_ke_btn, len(ke_params), 0, 1, 2)
         main_layout.addWidget(ke_group)
 
         # Potential Energy
-        pe_group = QGroupBox("Calcular Energía Potencial (PE)")
+        pe_group = QGroupBox("Calculate Potential Energy (PE)")
         pe_layout = QGridLayout(pe_group)
-        pe_params = {'pe_mass': 'Masa (kg):', 'pe_height': 'Altura (m):'}
+        pe_params = {'pe_mass': 'Mass (kg):', 'pe_height': 'Height (m):'}
         for i, (key, label) in enumerate(pe_params.items()):
             pe_layout.addWidget(QLabel(label), i, 0)
             line_edit = QLineEdit()
             self.input_fields[key] = line_edit
             pe_layout.addWidget(line_edit, i, 1)
-        calc_pe_btn = QPushButton("Calcular Energía Potencial")
+        calc_pe_btn = QPushButton("Calculate Potential Energy")
         calc_pe_btn.clicked.connect(self.calculate_potential_energy)
         pe_layout.addWidget(calc_pe_btn, len(pe_params), 0, 1, 2)
         main_layout.addWidget(pe_group)
@@ -83,10 +83,10 @@ class EnergyPanel(QWidget):
             distance = self.get_input_value('work_distance')
             angle = self.get_input_value('work_angle') or 0
             result = self.calculator.calculate_work(force, distance, angle)
-            result['title'] = "Trabajo"
+            result['title'] = "Work"
             self.calculation_ready.emit(result)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo de trabajo:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in work calculation:\n{str(e)}")
 
     @Slot()
     def calculate_kinetic_energy(self):
@@ -94,10 +94,10 @@ class EnergyPanel(QWidget):
             mass = self.get_input_value('ke_mass')
             velocity = self.get_input_value('ke_velocity')
             result = self.calculator.calculate_kinetic_energy(mass, velocity)
-            result['title'] = "Energía Cinética"
+            result['title'] = "Kinetic Energy"
             self.calculation_ready.emit(result)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo de energía cinética:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in kinetic energy calculation:\n{str(e)}")
 
     @Slot()
     def calculate_potential_energy(self):
@@ -105,10 +105,10 @@ class EnergyPanel(QWidget):
             mass = self.get_input_value('pe_mass')
             height = self.get_input_value('pe_height')
             result = self.calculator.calculate_potential_energy(mass, height)
-            result['title'] = "Energía Potencial"
+            result['title'] = "Potential Energy"
             self.calculation_ready.emit(result)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo de energía potencial:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in potential energy calculation:\n{str(e)}")
 
     @Slot()
     def clear(self):

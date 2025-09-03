@@ -187,8 +187,30 @@ class ControlPanel(QWidget):
                 self.input_fields['a'].setText('')
                 
 
+        # Hide all parameters first
+        for var_name in self.param_widgets:
+            label, line_edit = self.param_widgets[var_name]
+            label.setVisible(False)
+            line_edit.setVisible(False)
+
+        if is_mru or is_mrua:
+            # Show parameters for MRU/MRUA
+            params_to_show = ['x0', 'v0', 'a', 't', 'x', 'v']
+            for var_name in params_to_show:
+                label, line_edit = self.param_widgets[var_name]
+                label.setVisible(True)
+                line_edit.setVisible(True)
+            
+            self.input_fields['a'].setEnabled(is_mrua)
+            if is_mru:
+                self.input_fields['a'].setText('0')
+                
+            else:
+                self.input_fields['a'].setText('')
+                
+
         elif is_parabolic:
-            # Mostrar parámetros para Movimiento Parabólico
+            # Show parameters for Parabolic Movement
             params_to_show = ['v0', 'angle', 'x0', 'y0']
             for var_name in params_to_show:
                 label, line_edit = self.param_widgets[var_name]

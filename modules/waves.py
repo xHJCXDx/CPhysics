@@ -2,36 +2,36 @@ import numpy as np
 
 class WavesCalculator:
     """
-    Realiza cálculos relacionados con las propiedades de las ondas viajeras.
+    Performs calculations related to the properties of traveling waves.
     """
     def calculate_wave_properties(self, params: dict) -> dict:
         """
-        Calcula las propiedades de onda faltantes a partir de los parámetros dados.
+        Calculates the missing wave properties from the given parameters.
 
         Args:
-            params (dict): Un diccionario con las propiedades conocidas de la onda.
-                            Puede contener 'amplitude', 'frequency', 'wavelength', 'velocity', 'phase'.
+            params (dict): A dictionary with the known properties of the wave.
+                            It can contain 'amplitude', 'frequency', 'wavelength', 'velocity', 'phase'.
 
         Returns:
-            dict: Un diccionario con los parámetros de entrada, los valores calculados,
-                    los valores combinados y las ecuaciones utilizadas.
+            dict: A dictionary with the input parameters, the calculated values,
+                    the combined values, and the equations used.
         """
         p_in = {k: v for k, v in params.items() if v is not None}
         p_calc = {}
         equations = []
 
-        # Lógica de cálculo principal: v = f * λ
+        # Main calculation logic: v = f * λ
         if params.get('velocity') is None and params.get('frequency') is not None and params.get('wavelength') is not None:
             p_calc['velocity'] = params['frequency'] * params['wavelength']
             equations.append("v = f × λ")
         elif params.get('frequency') is None and params.get('velocity') is not None and params.get('wavelength') is not None:
             if params['wavelength'] == 0:
-                raise ValueError("La longitud de onda no puede ser cero.")
+                raise ValueError("Wavelength cannot be zero.")
             p_calc['frequency'] = params['velocity'] / params['wavelength']
             equations.append("f = v / λ")
         elif params.get('wavelength') is None and params.get('velocity') is not None and params.get('frequency') is not None:
             if params['frequency'] == 0:
-                raise ValueError("La frecuencia no puede ser cero.")
+                raise ValueError("Frequency cannot be zero.")
             p_calc['wavelength'] = params['velocity'] / params['frequency']
             equations.append("λ = v / f")
 
@@ -49,7 +49,7 @@ class WavesCalculator:
             equations.append("k = 2π / λ")
 
         if not p_calc:
-            raise ValueError("Datos insuficientes. Se requieren al menos dos de: frecuencia, longitud de onda, velocidad.")
+            raise ValueError("Insufficient data. At least two of the following are required: frequency, wavelength, velocity.")
 
         return {
             'input_params': p_in,

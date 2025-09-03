@@ -33,13 +33,13 @@ class NewtonLawPanel(QWidget):
         layout.addLayout(buttons_layout)
 
     def create_parameters_section(self):
-        group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
+        group = QGroupBox("Parameters (leave one blank to calculate)")
         
         layout = QGridLayout(group)
-        params_info = [('f', 'Fuerza Aplicada (N):'), ('m', 'Masa (kg):'), ('a', 'Aceleración (m/s²):')]
+        params_info = [('f', 'Applied Force (N):'), ('m', 'Mass (kg):'), ('a', 'Acceleration (m/s²):')]
         for i, (var, label) in enumerate(params_info):
             line_edit = QLineEdit()
-            line_edit.setPlaceholderText("Valor conocido")
+            line_edit.setPlaceholderText("Known value")
             
             self.input_fields[var] = line_edit
             layout.addWidget(QLabel(label), i, 0)
@@ -47,13 +47,13 @@ class NewtonLawPanel(QWidget):
         return group
 
     def create_friction_section(self):
-        group = QGroupBox("Fricción (Opcional)")
+        group = QGroupBox("Friction (Optional)")
         group.setCheckable(True)
         group.setChecked(False)
         layout = QGridLayout(group)
         self.mu_input = QLineEdit()
         self.mu_input.setPlaceholderText("ex. 0.2")
-        layout.addWidget(QLabel("Coeficiente de Fricción (μ):"), 0, 0)
+        layout.addWidget(QLabel("Friction Coefficient (μ):"), 0, 0)
         layout.addWidget(self.mu_input, 0, 1)
         self.friction_checkbox = group
         group.toggled.connect(self.mu_input.setEnabled)
@@ -61,14 +61,14 @@ class NewtonLawPanel(QWidget):
         return group
 
     def create_incline_section(self):
-        group = QGroupBox("Plano Inclinado (Opcional)")
+        group = QGroupBox("Inclined Plane (Optional)")
         group.setCheckable(True)
         group.setChecked(False)
         layout = QGridLayout(group)
         self.angle_input = QLineEdit()
         self.angle_input.setPlaceholderText("ex. 30")
         
-        layout.addWidget(QLabel("Ángulo del Plano (θ°):"), 0, 0)
+        layout.addWidget(QLabel("Plane Angle (θ°):"), 0, 0)
         layout.addWidget(self.angle_input, 0, 1)
         self.incline_checkbox = group
         group.toggled.connect(self.angle_input.setEnabled)
@@ -77,7 +77,7 @@ class NewtonLawPanel(QWidget):
 
     def create_action_buttons(self):
         layout = QHBoxLayout()
-        self.calculate_btn = QPushButton("Calcular Ley de Newton")
+        self.calculate_btn = QPushButton("Calculate Newton's Law")
         self.calculate_btn.clicked.connect(self.calculate)
         layout.addWidget(self.calculate_btn)
         layout.addStretch()
@@ -88,10 +88,10 @@ class NewtonLawPanel(QWidget):
         mu = float(self.mu_input.text().strip()) if self.friction_checkbox.isChecked() and self.mu_input.text().strip() and self.validator.is_valid_number(self.mu_input.text().strip()) else None
         angle = float(self.angle_input.text().strip()) if self.incline_checkbox.isChecked() and self.angle_input.text().strip() and self.validator.is_valid_number(self.angle_input.text().strip()) else None
         if mu is not None and mu < 0:
-            QMessageBox.warning(self, "Valor Inválido", "El coeficiente de fricción no puede ser negativo.")
+            QMessageBox.warning(self, "Invalid Value", "The friction coefficient cannot be negative.")
             mu = None
         if angle is not None and not (0 <= angle <= 90):
-            QMessageBox.warning(self, "Valor Inválido", "El ángulo debe estar entre 0 y 90 grados.")
+            QMessageBox.warning(self, "Invalid Value", "The angle must be between 0 and 90 degrees.")
             angle = None
         return params, mu, angle
 
@@ -108,7 +108,7 @@ class NewtonLawPanel(QWidget):
 
             self.calculation_ready.emit(results)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in calculation:\n{str(e)}")
 
     @Slot()
     def clear(self):

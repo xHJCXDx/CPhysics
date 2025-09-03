@@ -40,7 +40,7 @@ class DynamicsFrame(QWidget):
         scroll_area.setWidget(container)
         layout = QVBoxLayout(container)
 
-        title = QLabel("Dinámica")
+        title = QLabel("Dynamics")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
@@ -52,7 +52,7 @@ class DynamicsFrame(QWidget):
         self.results_panel = ResultsPanel()
 
         # Clear Button
-        self.clear_btn = QPushButton("Limpiar Todo")
+        self.clear_btn = QPushButton("Clear All")
         
 
         # Add widgets to layout

@@ -1,6 +1,6 @@
 """
-Interfaz gráfica para el módulo de electromagnetismo
-Permite calcular problemas relacionados con la Ley de Coulomb y campos eléctricos.
+Graphical interface for the electromagnetism module
+Allows calculating problems related to Coulomb's Law and electric fields.
 """
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QSplitter, QMessageBox, QScrollArea, QVBoxLayout)
@@ -30,7 +30,7 @@ class ElectromagnetismFrame(QWidget):
         splitter = QSplitter(Qt.Horizontal)
         main_layout.addWidget(splitter)
         
-        # Paneles
+        # Panels
         left_container = QWidget()
         left_layout = QVBoxLayout(left_container)
         left_layout.setContentsMargins(0, 0, 0, 0)
@@ -54,7 +54,7 @@ class ElectromagnetismFrame(QWidget):
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 1)
 
-        # Conexiones
+        # Connections
         self.control_panel.calculate_btn.clicked.connect(self.calculate)
         self.control_panel.clear_btn.clicked.connect(self.clear_all)
         self.control_panel.plot_btn.clicked.connect(self.plot_results)
@@ -65,7 +65,7 @@ class ElectromagnetismFrame(QWidget):
             self.results = self.calculator.calculate_coulomb_force(params)
             self.results_panel.display_results(self.results, self.control_panel.input_fields)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in calculation:\n{str(e)}")
 
     def clear_all(self):
         self.control_panel.clear_fields()
@@ -75,6 +75,6 @@ class ElectromagnetismFrame(QWidget):
 
     def plot_results(self):
         if not self.results:
-            QMessageBox.warning(self, "Advertencia", "Primero debe realizar un cálculo")
+            QMessageBox.critical(self, "Warning", "You must first perform a calculation")
             return
         self.plot_panel.plot_results(self.results, self.calculator)

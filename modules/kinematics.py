@@ -1,12 +1,12 @@
 """
-Módulo de cálculos de cinemática
-Contiene las funciones para resolver problemas de movimiento rectilíneo
+Kinematics calculations module
+Contains functions to solve rectilinear motion problems
 """
 
 import numpy as np
 import math
 
-EPSILON = 1e-9 # Pequeño valor para evitar división por cero en punto flotante
+EPSILON = 1e-9 # Small value to avoid division by zero in floating point
 
 class KinematicsCalculator:
     def __init__(self):
@@ -14,13 +14,13 @@ class KinematicsCalculator:
     
     def calculate_mru(self, params):
         """
-        Calcular parámetros para Movimiento Rectilíneo Uniforme
+        Calculate parameters for Uniform Rectilinear Motion
         
-        Ecuaciones:
+        Equations:
         x = x0 + v0 * t
-        v = v0 (constante)
+        v = v0 (constant)
         """
-        # Parámetros de entrada
+        # Input parameters
         x0 = params.get('x0') if params.get('x0') is not None else 0
         v0 = params.get('v0')
         t = params.get('t')
@@ -28,32 +28,32 @@ class KinematicsCalculator:
         
         input_params = {}
         calculated_values = {}
-        equations = ["x = x₀ + v₀ × t", "v = v₀ (constante)"]
+        equations = ["x = x₀ + v₀ × t", "v = v₀ (constant)"]
         
-        # Determinar qué calcular basado en los parámetros dados
+        # Determine what to calculate based on the given parameters
         if v0 is not None and t is not None:
-            # Calcular posición final (x)
+            # Calculate final position (x)
             x_final = x0 + v0 * t
             
             input_params = {'x0': x0, 'v0': v0, 't': t}
             calculated_values = {'x': x_final, 'v': v0}
             
         elif x is not None and t is not None:
-            # Calcular velocidad (v0)
+            # Calculate velocity (v0)
             v0_calc = (x - x0) / t if abs(t) > EPSILON else 0
             
             input_params = {'x0': x0, 'x': x, 't': t}
             calculated_values = {'v0': v0_calc, 'v': v0_calc}
             
         elif x is not None and v0 is not None:
-            # Calcular tiempo (t)
+            # Calculate time (t)
             t_calc = (x - x0) / v0 if abs(v0) > EPSILON else 0
             
             input_params = {'x0': x0, 'v0': v0, 'x': x}
             calculated_values = {'t': t_calc, 'v': v0}
             
         else:
-            raise ValueError("Faltan parámetros para resolver el problema de MRU")
+            raise ValueError("Missing parameters to solve the URM problem")
         
         return {
             'input_params': input_params,
@@ -76,11 +76,11 @@ class KinematicsCalculator:
         else:
             discriminant = B**2 - 4 * A * C
             if discriminant < 0:
-                raise ValueError("No hay solución real para el tiempo (discriminante negativo)")
+                raise ValueError("No real solution for time (negative discriminant)")
             t1, t2 = (-B + np.sqrt(discriminant)) / (2 * A), (-B - np.sqrt(discriminant)) / (2 * A)
             t_calc = t1 if t1 >= 0 else t2
             if t_calc < 0:
-                raise ValueError("No se encontró una solución de tiempo válida")
+                raise ValueError("No valid time solution found")
         v_final = v0 + a * t_calc
         return {'t': t_calc, 'v': v_final}, {'x0': x0, 'v0': v0, 'a': a, 'x': x}
 
@@ -99,7 +99,7 @@ class KinematicsCalculator:
 
     def calculate_mrua(self, params):
         """
-        Calcular parámetros para Movimiento Rectilíneo Uniformemente Acelerado
+        Calculate parameters for Uniformly Accelerated Rectilinear Motion
         """
         strategies = [
             ({'v0', 'a', 't'}, self._calculate_x_v_from_v0_a_t),
@@ -125,8 +125,8 @@ class KinematicsCalculator:
         
         # Special case for the last one as it has the same signature
         if {'v0', 'a', 'v'}.issubset(provided_params):
-             calculated_values, input_params = self._calculate_x_t_from_v0_a_v(params)
-             return {
+            calculated_values, input_params = self._calculate_x_t_from_v0_a_v(params)
+            return {
                     'input_params': input_params,
                     'calculated_values': calculated_values,
                     'equations': [
@@ -137,13 +137,13 @@ class KinematicsCalculator:
                     'movement_type': 'mrua'
                 }
 
-        raise ValueError("Faltan parámetros para resolver el problema de MRUA")
+        raise ValueError("Missing parameters to solve the UARM problem")
     
     def calculate_parabolic_motion(self, params):
         """
-        Calcular parámetros para Movimiento Parabólico (Tiro de Proyectil)
+        Calculate parameters for Parabolic Motion (Projectile Motion)
         
-        Ecuaciones:
+        Equations:
         y = y0 + v0y*t - (1/2)*g*t²
         x = x0 + v0x*t
         vy = v0y - g*t
@@ -153,26 +153,26 @@ class KinematicsCalculator:
         angle_deg = params.get('angle')
         x0 = params.get('x0', 0)
         y0 = params.get('y0', 0)
-        g = 9.81 # Aceleración gravitacional
+        g = 9.81 # Gravitational acceleration
 
         if v0 is None or angle_deg is None:
-            raise ValueError("La velocidad inicial y el ángulo son requeridos")
+            raise ValueError("Initial velocity and angle are required")
 
         angle_rad = math.radians(angle_deg)
         v0x = v0 * math.cos(angle_rad)
         v0y = v0 * math.sin(angle_rad)
 
-        # Tiempo para alcanzar la altura máxima (vy = 0)
+        # Time to reach maximum height (vy = 0)
         t_max_height = v0y / g if g > EPSILON else 0
         
-        # Tiempo de vuelo total (retorno a y=y0)
+        # Total flight time (return to y=y0)
         # y0 = y0 + v0y*t - 0.5*g*t^2 => 0 = t * (v0y - 0.5*g*t)
         time_of_flight = (2 * v0y) / g if g > EPSILON else 0
         
-        # Altura máxima (y en t_max_height)
+        # Maximum height (y at t_max_height)
         max_height = y0 + v0y * t_max_height - 0.5 * g * t_max_height**2
         
-        # Alcance (x en time_of_flight)
+        # Range (x at time_of_flight)
         reach = x0 + v0x * time_of_flight
 
         input_params = {'v0': v0, 'angle': angle_deg, 'x0': x0, 'y0': y0}
@@ -184,7 +184,7 @@ class KinematicsCalculator:
             'v0y': v0y
         }
         equations = [
-            "t_vuelo = (2 * v₀ * sin(θ)) / g",
+            "t_flight = (2 * v₀ * sin(θ)) / g",
             "h_max = y₀ + (v₀² * sin²(θ)) / (2 * g)",
             "R = x₀ + (v₀² * sin(2θ)) / g"
         ]
@@ -198,9 +198,9 @@ class KinematicsCalculator:
 
     def calculate_meeting_point(self, params):
         """
-        Calcular el punto de encuentro de dos objetos en MRUA.
+        Calculate the meeting point of two objects in UARM.
         
-        Resuelve la ecuación:
+        Solves the equation:
         x0_1 + v0_1*t + 0.5*a1*t^2 = x0_2 + v0_2*t + 0.5*a2*t^2
         
         (0.5*a1 - 0.5*a2)*t^2 + (v0_1 - v0_2)*t + (x0_1 - x0_2) = 0
@@ -211,52 +211,52 @@ class KinematicsCalculator:
         x0_1, v0_1, a_1 = obj1.get('x0', 0), obj1.get('v0', 0), obj1.get('a', 0)
         x0_2, v0_2, a_2 = obj2.get('x0', 0), obj2.get('v0', 0), obj2.get('a', 0)
 
-        # Coeficientes de la ecuación cuadrática At^2 + Bt + C = 0
+        # Coefficients of the quadratic equation At^2 + Bt + C = 0
         A = 0.5 * (a_1 - a_2)
         B = v0_1 - v0_2
         C = x0_1 - x0_2
 
         if abs(A) < EPSILON:
-            # Ecuación lineal (movimiento con aceleración igual o similar)
+            # Linear equation (motion with equal or similar acceleration)
             if abs(B) < EPSILON:
                 if abs(C) < EPSILON:
-                    # Los objetos están en la misma posición y se mueven juntos
-                    raise ValueError("Los objetos tienen la misma posición y velocidad inicial (movimiento relativo cero)")
+                    # The objects are in the same position and move together
+                    raise ValueError("Objects have the same initial position and velocity (zero relative motion)")
                 else:
-                    # Paralelos, nunca se encuentran
-                    raise ValueError("Los objetos nunca se encuentran (velocidades iguales, posiciones diferentes)")
+                    # Parallel, they never meet
+                    raise ValueError("Objects never meet (same velocities, different positions)")
             
             t = -C / B
             if t < 0:
-                raise ValueError("El encuentro ocurriría en un tiempo negativo (en el pasado)")
+                raise ValueError("The meeting would occur at a negative time (in the past)")
         else:
-            # Ecuación cuadrática
+            # Quadratic equation
             discriminant = B**2 - 4*A*C
             if discriminant < 0:
-                raise ValueError("No hay solución real para el tiempo (los objetos no se encuentran)")
+                raise ValueError("No real solution for time (objects do not meet)")
             
             sqrt_discriminant = np.sqrt(discriminant)
             t1 = (-B + sqrt_discriminant) / (2*A)
             t2 = (-B - sqrt_discriminant) / (2*A)
             
-            # Filtrar tiempos negativos
+            # Filter negative times
             valid_times = [t for t in [t1, t2] if t >= 0]
             
             if not valid_times:
-                raise ValueError("El encuentro ocurriría en un tiempo negativo")
+                raise ValueError("The meeting would occur at a negative time")
             
             t = min(valid_times)
 
-        # Calcular posición de encuentro
+        # Calculate meeting position
         position = x0_1 + v0_1 * t + 0.5 * a_1 * t**2
 
         input_params = {
-            'Objeto 1': {'x0': x0_1, 'v0': v0_1, 'a': a_1},
-            'Objeto 2': {'x0': x0_2, 'v0': v0_2, 'a': a_2}
+            'Object 1': {'x0': x0_1, 'v0': v0_1, 'a': a_1},
+            'Object 2': {'x0': x0_2, 'v0': v0_2, 'a': a_2}
         }
         calculated_values = {
-            'tiempo_encuentro': t,
-            'posicion_encuentro': position
+            'meeting_time': t,
+            'meeting_position': position
         }
         equations = ["x₁ = x₀₁ + v₀₁t + ½a₁t²", "x₂ = x₀₂ + v₀₂t + ½a₂t²"]
 
@@ -269,14 +269,14 @@ class KinematicsCalculator:
 
     def generate_plot_data(self, results, num_points=100):
         """
-        Generar datos para graficar basado en los resultados del cálculo
+        Generate data for plotting based on calculation results
         """
-        # Obtener parámetros del resultado
+        # Get parameters from the result
         input_params = results['input_params']
         calculated_values = results['calculated_values']
         movement_type = results['movement_type']
         
-        # Combinar parámetros
+        # Combine parameters
         all_params = {**input_params, **calculated_values}
         
         if movement_type == 'parabolic':
@@ -306,15 +306,15 @@ class KinematicsCalculator:
         v0 = all_params.get('v0', 0)
         a = all_params.get('a', 0) if movement_type == 'mrua' else 0
         
-        # Determinar rango de tiempo para la gráfica
+        # Determine time range for the graph
         t_max = all_params.get('t', 10)
         if t_max <= 0:
-            t_max = 10  # Valor por defecto
+            t_max = 10  # Default value
         
-        # Crear array de tiempo
+        # Create time array
         time = np.linspace(0, t_max, num_points)
         
-        # Calcular posición y velocidad para cada punto
+        # Calculate position and velocity for each point
         if movement_type == 'mru':
             position = x0 + v0 * time
             velocity = np.full_like(time, v0)

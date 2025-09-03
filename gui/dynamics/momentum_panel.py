@@ -22,36 +22,36 @@ class MomentumPanel(QWidget):
         layout.addWidget(momentum_group)
 
     def create_momentum_section(self):
-        main_group = QGroupBox("Impulso y Momento Lineal")
+        main_group = QGroupBox("Impulse and Linear Momentum")
         
         main_layout = QVBoxLayout(main_group)
 
         # Impulse
-        impulse_group = QGroupBox("Calcular Impulso (I)")
+        impulse_group = QGroupBox("Calculate Impulse (I)")
         impulse_layout = QGridLayout(impulse_group)
-        impulse_params = {'impulse_force': 'Fuerza (N):', 'impulse_time': 'Tiempo (s):', 'impulse_impulse': 'Impulso (N·s):'}
+        impulse_params = {'impulse_force': 'Force (N):', 'impulse_time': 'Time (s):', 'impulse_impulse': 'Impulse (N·s):'}
         for i, (key, label) in enumerate(impulse_params.items()):
             impulse_layout.addWidget(QLabel(label), i, 0)
             line_edit = QLineEdit()
-            line_edit.setPlaceholderText("Dejar en blanco para calcular")
+            line_edit.setPlaceholderText("Leave blank to calculate")
             self.input_fields[key] = line_edit
             impulse_layout.addWidget(line_edit, i, 1)
-        calc_impulse_btn = QPushButton("Calcular Impulso")
+        calc_impulse_btn = QPushButton("Calculate Impulse")
         calc_impulse_btn.clicked.connect(self.calculate_impulse)
         impulse_layout.addWidget(calc_impulse_btn, len(impulse_params), 0, 1, 2)
         main_layout.addWidget(impulse_group)
 
         # Linear Momentum
-        momentum_group = QGroupBox("Calcular Momento Lineal (p)")
+        momentum_group = QGroupBox("Calculate Linear Momentum (p)")
         momentum_layout = QGridLayout(momentum_group)
-        momentum_params = {'momentum_mass': 'Masa (kg):', 'momentum_velocity': 'Velocidad (m/s):', 'momentum_momentum': 'Momento (kg·m/s):'}
+        momentum_params = {'momentum_mass': 'Mass (kg):', 'momentum_velocity': 'Velocity (m/s):', 'momentum_momentum': 'Momentum (kg·m/s):'}
         for i, (key, label) in enumerate(momentum_params.items()):
             momentum_layout.addWidget(QLabel(label), i, 0)
             line_edit = QLineEdit()
-            line_edit.setPlaceholderText("Dejar en blanco para calcular")
+            line_edit.setPlaceholderText("Leave blank to calculate")
             self.input_fields[key] = line_edit
             momentum_layout.addWidget(line_edit, i, 1)
-        calc_momentum_btn = QPushButton("Calcular Momento Lineal")
+        calc_momentum_btn = QPushButton("Calculate Linear Momentum")
         calc_momentum_btn.clicked.connect(self.calculate_linear_momentum)
         momentum_layout.addWidget(calc_momentum_btn, len(momentum_params), 0, 1, 2)
         main_layout.addWidget(momentum_group)
@@ -71,10 +71,10 @@ class MomentumPanel(QWidget):
             time = self.get_input_value('impulse_time')
             impulse = self.get_input_value('impulse_impulse')
             result = self.calculator.calculate_impulse(force, time, impulse)
-            result['title'] = "Impulso"
+            result['title'] = "Impulse"
             self.calculation_ready.emit(result)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo de impulso:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in impulse calculation:\n{str(e)}")
 
     @Slot()
     def calculate_linear_momentum(self):
@@ -83,10 +83,10 @@ class MomentumPanel(QWidget):
             velocity = self.get_input_value('momentum_velocity')
             momentum = self.get_input_value('momentum_momentum')
             result = self.calculator.calculate_linear_momentum(mass, velocity, momentum)
-            result['title'] = "Momento Lineal"
+            result['title'] = "Linear Momentum"
             self.calculation_ready.emit(result)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error en el cálculo de momento lineal:\n{str(e)}")
+            QMessageBox.critical(self, "Error", f"Error in linear momentum calculation:\n{str(e)}")
 
     @Slot()
     def clear(self):

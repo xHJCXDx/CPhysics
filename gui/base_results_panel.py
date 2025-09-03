@@ -12,12 +12,12 @@ class BaseResultsPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        group = QGroupBox("Resultados")
+        group = QGroupBox("Results")
         group_layout = QVBoxLayout(group)
         
         self.results_table = QTableWidget()
         self.results_table.setColumnCount(2)
-        self.results_table.setHorizontalHeaderLabels(["Parámetro", "Valor"])
+        self.results_table.setHorizontalHeaderLabels(["Parameter", "Value"])
         self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)
         
@@ -30,18 +30,18 @@ class BaseResultsPanel(QWidget):
     def get_variable_tooltips(self):
         # This method can be overridden by subclasses to provide specific tooltips
         return {
-            'x': 'Posición final (m)', 'x0': 'Posición inicial (m)',
-            'y': 'Altura final (m)', 'y0': 'Altura inicial (m)',
-            'v': 'Velocidad final (m/s)', 'v0': 'Velocidad inicial (m/s)',
-            'a': 'Aceleración (m/s²)', 't': 'Tiempo (s)',
-            'g': 'Aceleración debida a la gravedad (9.8 m/s²)',
-            'v0x': 'Velocidad inicial en x (m/s)',
-            'v0y': 'Velocidad inicial en y (m/s)',
-            'vx': 'Velocidad en x (m/s)', 'vy': 'Velocidad en y (m/s)',
-            'θ': 'Ángulo de lanzamiento (°)',
-            't_vuelo': 'Tiempo de vuelo (s)',
-            'y_max': 'Altura máxima (m)',
-            'R': 'Alcance horizontal (m)'
+            'x': 'Final position (m)', 'x0': 'Initial position (m)',
+            'y': 'Final height (m)', 'y0': 'Initial height (m)',
+            'v': 'Final velocity (m/s)', 'v0': 'Initial velocity (m/s)',
+            'a': 'Acceleration (m/s²)', 't': 'Time (s)',
+            'g': 'Acceleration due to gravity (9.8 m/s²)',
+            'v0x': 'Initial velocity in x (m/s)',
+            'v0y': 'Initial velocity in y (m/s)',
+            'vx': 'Velocity in x (m/s)', 'vy': 'Velocity in y (m/s)',
+            'θ': 'Launch angle (°)',
+            't_flight': 'Time of flight (s)',
+            'y_max': 'Maximum height (m)',
+            'R': 'Horizontal range (m)'
         }
 
     def get_equation_tooltip(self, equation):
@@ -50,7 +50,7 @@ class BaseResultsPanel(QWidget):
         for var in variables:
             if var in self.variable_tooltips:
                 tooltip_parts.append(f"{var}: {self.variable_tooltips[var]}")
-        return "\n".join(tooltip_parts) if tooltip_parts else "Información de variables no disponible"
+        return "\n".join(tooltip_parts) if tooltip_parts else "Variable information not available"
 
     def clear(self):
         self.results_table.setRowCount(0)
