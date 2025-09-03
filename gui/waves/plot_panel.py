@@ -6,7 +6,7 @@ from matplotlib.figure import Figure
 import seaborn as sns
 
 class MplCanvas(FigureCanvas):
-    """Widget de lienzo de Matplotlib personalizado para PySide6."""
+    """Custom Matplotlib canvas widget for PySide6."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
@@ -22,7 +22,7 @@ class MplCanvas(FigureCanvas):
             spine.set_edgecolor('#ecf0f1')
 
 class PlotPanel(QWidget):
-    """Panel para mostrar el gráfico de la onda."""
+    """Panel to display the wave graph."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
@@ -31,7 +31,7 @@ class PlotPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
 
-        title = QLabel("Gráfico de la Onda")
+        title = QLabel("Waveform Graph")
         title.setFont(QFont("Arial", 14, QFont.Bold))
         
         title.setAlignment(Qt.AlignCenter)
