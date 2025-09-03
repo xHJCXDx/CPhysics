@@ -1,6 +1,6 @@
 """
-Paquete GUI para CPHYSICS
-Contiene todas las interfaces gráficas de la aplicación basadas en PySide6
+GUI package for CPHYSICS
+Contains all the graphical interfaces of the application based on PySide6
 """
 
 from .base_window import MainWindow

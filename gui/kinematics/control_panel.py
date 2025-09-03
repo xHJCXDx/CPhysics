@@ -24,7 +24,7 @@ class ControlPanel(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel("Cinemática")
+        title = QLabel("Kinematics")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         
         title.setAlignment(Qt.AlignCenter)
@@ -36,12 +36,12 @@ class ControlPanel(QWidget):
         # Tab for standard kinematics
         kinematics_tab = QWidget()
         self.setup_kinematics_tab(kinematics_tab)
-        self.tab_widget.addTab(kinematics_tab, "Movimiento")
+        self.tab_widget.addTab(kinematics_tab, "Movement")
 
         # Tab for meeting point calculation
         meeting_tab = QWidget()
         self.setup_meeting_tab(meeting_tab)
-        self.tab_widget.addTab(meeting_tab, "Encuentros")
+        self.tab_widget.addTab(meeting_tab, "Meetings")
 
         main_layout.addWidget(self.tab_widget)
 
@@ -83,14 +83,14 @@ class ControlPanel(QWidget):
         self.meeting_panel.calculate_requested.connect(self.calculate_meeting_requested)
 
     def create_movement_type_section(self):
-        group = QGroupBox("Tipo de Movimiento")
+        group = QGroupBox("Movement Type")
         
         
         layout = QVBoxLayout(group)
         
-        self.mru_radio = QRadioButton("Movimiento Rectilíneo Uniforme (MRU)")
-        self.mrua_radio = QRadioButton("Movimiento Rectilíneo Uniformemente Acelerado (MRUA)")
-        self.parabolic_radio = QRadioButton("Movimiento Parabólico")
+        self.mru_radio = QRadioButton("Uniform Rectilinear Motion (URM)")
+        self.mrua_radio = QRadioButton("Uniformly Accelerated Rectilinear Motion (UARM)")
+        self.parabolic_radio = QRadioButton("Parabolic Motion")
         
         
 
@@ -107,21 +107,21 @@ class ControlPanel(QWidget):
         return group
 
     def create_parameters_section(self):
-        group = QGroupBox("Parámetros")
+        group = QGroupBox("Parameters")
         
         
         self.params_layout = QGridLayout(group)
         self.params_layout.setSpacing(8)
         
         params_info = [
-            ('x0', 'Posición inicial (m):', True),
-            ('y0', 'Altura inicial (m):', False),
-            ('v0', 'Velocidad inicial (m/s):', True),
-            ('a', 'Aceleración (m/s²):', False),
-            ('t', 'Tiempo (s):', True),
-            ('x', 'Posición final (m):', False),
-            ('v', 'Velocidad final (m/s):', False),
-            ('angle', 'Ángulo de lanzamiento (°):', False)
+            ('x0', 'Initial Position (m):', True),
+            ('y0', 'Initial Height (m):', False),
+            ('v0', 'Initial Velocity (m/s):', True),
+            ('a', 'Acceleration (m/s²):', False),
+            ('t', 'Time (s):', True),
+            ('x', 'Final Position (m):', False),
+            ('v', 'Final Velocity (m/s):', False),
+            ('angle', 'Launch Angle (°):', False)
         ]
         
         for i, (var_name, label_text, is_enabled) in enumerate(params_info):
@@ -143,9 +143,9 @@ class ControlPanel(QWidget):
         layout = QHBoxLayout()
         layout.setSpacing(10)
         
-        self.calculate_btn = QPushButton("Calcular")
-        self.clear_btn = QPushButton("Limpiar")
-        self.plot_btn = QPushButton("Graficar")
+        self.calculate_btn = QPushButton("Calculate")
+        self.clear_btn = QPushButton("Clear")
+        self.plot_btn = QPushButton("Plot")
         
         
         
@@ -165,14 +165,14 @@ class ControlPanel(QWidget):
         is_mrua = self.mrua_radio.isChecked()
         is_parabolic = self.parabolic_radio.isChecked()
 
-        # Ocultar todos los parámetros primero
+        # Hide all parameters first
         for var_name in self.param_widgets:
             label, line_edit = self.param_widgets[var_name]
             label.setVisible(False)
             line_edit.setVisible(False)
 
         if is_mru or is_mrua:
-            # Mostrar parámetros para MRU/MRUA
+            # Show parameters for URM/UARM
             params_to_show = ['x0', 'v0', 'a', 't', 'x', 'v']
             for var_name in params_to_show:
                 label, line_edit = self.param_widgets[var_name]
@@ -194,7 +194,7 @@ class ControlPanel(QWidget):
             line_edit.setVisible(False)
 
         if is_mru or is_mrua:
-            # Show parameters for MRU/MRUA
+            # Show parameters for URM/UARM
             params_to_show = ['x0', 'v0', 'a', 't', 'x', 'v']
             for var_name in params_to_show:
                 label, line_edit = self.param_widgets[var_name]
@@ -227,7 +227,7 @@ class ControlPanel(QWidget):
                 text = field.text().strip()
                 if text:
                     if not validator.is_valid_number(text):
-                        raise ValueError(f"Valor inválido para {var_name}: {text}")
+                        raise ValueError(f"Invalid value for {var_name}: {text}")
                     params[var_name] = float(text)
                 else:
                     params[var_name] = None
