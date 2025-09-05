@@ -1,45 +1,41 @@
 #!/usr/bin/env python3
 """
-CPHYSICS - Aplicación de Física Computacional
-Punto de entrada principal de la aplicación
+CPHYSICS - Computational Physics Application
+Main entry point for the application.
 """
 
 import sys
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from gui.base_window import MainWindow
 
 def main():
-    """Función principal que inicia la aplicación"""
-    # Crear la aplicación
+    """Initializes and runs the application."""
     app = QApplication(sys.argv)
-    
-    # Configurar propiedades de la aplicación
+
     app.setApplicationName("CPHYSICS")
-    app.setApplicationDisplayName("CPHYSICS - Física Computacional")
+    app.setApplicationDisplayName("CPHYSICS - Computational Physics")
     app.setApplicationVersion("1.0.0")
     app.setOrganizationName("CPHYSICS")
-    
-    # Configurar el ícono de la aplicación (opcional)
+
+    # Set the application icon
     try:
         app.setWindowIcon(QIcon("assets/icon.png"))
-    except:
-        pass  # Si no hay ícono, continuar sin él
-    
-    # Cargar la hoja de estilos
+    except FileNotFoundError:
+        print("Warning: Icon file 'assets/icon.png' not found.")
+
+    # Load the stylesheet
     try:
         with open("gui/styles.qss", "r") as f:
             style_sheet = f.read()
             app.setStyleSheet(style_sheet)
     except FileNotFoundError:
-        print("Advertencia: No se encontró el archivo de estilos 'gui/styles.qss'.")
+        print("Warning: Stylesheet file 'gui/styles.qss' not found.")
 
-    # Crear la ventana principal
+    # Create and show the main window
     window = MainWindow()
     window.show()
-    
-    # Iniciar el bucle principal
+
     sys.exit(app.exec())
 
 if __name__ == "__main__":

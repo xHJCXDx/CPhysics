@@ -1,5 +1,12 @@
+"""
+Module for the Dynamics Frame of the CPhysics application.
+
+This module defines the main user interface for the dynamics section,
+which includes panels for Newton's Laws, energy, and momentum calculations.
+"""
+
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QSplitter, 
-                                QScrollArea, QLabel, QPushButton)
+                                QScrollArea, QLabel, QPushButton, QMessageBox)
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QFont
 
@@ -10,28 +17,44 @@ from gui.dynamics.results_panel import ResultsPanel
 from gui.dynamics.plot_panel import PlotPanel
 
 class DynamicsFrame(QWidget):
+    """
+    The main widget for the Dynamics module.
+
+    This class integrates the various panels for dynamics calculations (Newton's Law,
+    Energy, Momentum) and connects them with results and plotting panels.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the DynamicsFrame, its UI, and signal connections.
+        """
         super().__init__(parent)
         self.setup_ui()
         self.connect_signals()
 
     def setup_ui(self):
+        """
+        Sets up the graphical user interface for the dynamics frame.
+        """
         main_layout = QHBoxLayout(self)
         splitter = QSplitter(Qt.Horizontal)
         main_layout.addWidget(splitter)
 
-        # Left Panel (Controls)
+        # Left panel for user inputs and controls.
         self.control_panel = self.create_control_panel()
         splitter.addWidget(self.control_panel)
 
-        # Right Panel (Plot)
+        # Right panel for displaying plots.
         self.plot_panel = PlotPanel()
         splitter.addWidget(self.plot_panel)
 
+        # Adjust the initial size ratio of the splitter sections.
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 1)
 
     def create_control_panel(self):
+        """
+        Creates the left-side panel that contains all control widgets.
+        """
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setMinimumWidth(400)
@@ -45,17 +68,12 @@ class DynamicsFrame(QWidget):
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
-        # Instantiate Panels
         self.newton_panel = NewtonLawPanel()
         self.energy_panel = EnergyPanel()
         self.momentum_panel = MomentumPanel()
         self.results_panel = ResultsPanel()
-
-        # Clear Button
         self.clear_btn = QPushButton("Clear All")
         
-
-        # Add widgets to layout
         layout.addWidget(self.newton_panel)
         layout.addWidget(self.energy_panel)
         layout.addWidget(self.momentum_panel)
@@ -66,14 +84,25 @@ class DynamicsFrame(QWidget):
         return scroll_area
 
     def connect_signals(self):
+        """
+        Connects signals from child widgets to the appropriate slots.
+        """
+        # Route calculation-ready signals to the results display panel.
         self.newton_panel.calculation_ready.connect(self.results_panel.display_results)
         self.energy_panel.calculation_ready.connect(self.results_panel.display_results)
         self.momentum_panel.calculation_ready.connect(self.results_panel.display_results)
+        
+        # Connect the master clear button to the clear_all slot.
         self.clear_btn.clicked.connect(self.clear_all)
+        
+        # Handle plot requests from the plot panel.
         self.plot_panel.plot_data_requested.connect(self.handle_plot_request)
 
     @Slot()
     def clear_all(self):
+        """
+        Clears all input fields and results in all panels.
+        """
         self.newton_panel.clear()
         self.energy_panel.clear()
         self.momentum_panel.clear()
@@ -82,12 +111,25 @@ class DynamicsFrame(QWidget):
 
     @Slot(str, str, str)
     def handle_plot_request(self, x_var, y_var, constant_text):
-        params, mu, angle = self.newton_panel.get_input_values()
-        plot_params = {
-            'x_var': x_var,
-            'y_var': y_var,
-            'constant_value': float(constant_text),
-            'mu': mu if self.newton_panel.friction_checkbox.isChecked() else None,
-            'angle': angle if self.newton_panel.incline_checkbox.isChecked() else None
-        }
-        self.plot_panel.plot(plot_params)
+        """
+        Handles the request to plot data from the Newton's Law panel.
+
+        Args:
+            x_var (str): The variable for the x-axis.
+            y_var (str): The variable for the y-axis.
+            constant_text (str): The value of the constant variable as a string.
+        """
+        try:
+            params, mu, angle = self.newton_panel.get_input_values()
+            plot_params = {
+                'x_var': x_var,
+                'y_var': y_var,
+                'constant_value': float(constant_text),
+                'mu': mu if self.newton_panel.friction_checkbox.isChecked() else None,
+                'angle': angle if self.newton_panel.incline_checkbox.isChecked() else None
+            }
+            self.plot_panel.plot(plot_params)
+        except ValueError:
+            QMessageBox.critical(self, "Input Error", f"Invalid constant value: '{constant_text}'. Please enter a valid number.")
+        except Exception as e:
+            QMessageBox.critical(self, "Plotting Error", f"An unexpected error occurred while preparing the plot: {e}")
