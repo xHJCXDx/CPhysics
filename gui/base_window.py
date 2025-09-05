@@ -1,9 +1,8 @@
 """
-Module for the main window of the CPhysics application.
+Main window for the CPhysics application.
 
 This module defines the main window, which contains the primary layout,
-navigation controls, and the content area where different physics modules
-are displayed.
+navigation controls, and the content area for displaying physics modules.
 """
 
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -19,20 +18,19 @@ from gui.electromagnetism_frame import ElectromagnetismFrame
 
 class MainWindow(QMainWindow):
     """
-    The main window for the CPhysics application.
+    Main application window.
 
-    This class sets up the main user interface, including a navigation bar
-    to switch between different physics modules and a central stacked widget
-    to display the content of the selected module.
+    Sets up the UI, including a navigation bar to switch between physics
+    modules and a central stacked widget to display module content.
     """
     def __init__(self):
-        """Initializes the MainWindow, sets up the UI, and displays the initial module."""
+        """Initializes the main window and sets up the UI."""
         super().__init__()
         
         self.setup_window()
         self.create_widgets()
         
-        # Set the initial view to the Kinematics module on startup.
+        # Show the Kinematics module by default on startup.
         self.show_kinematics()
 
     def setup_window(self):
@@ -85,7 +83,7 @@ class MainWindow(QMainWindow):
         nav_layout = QHBoxLayout()
         nav_layout.setSpacing(10)
         
-        # Each tuple contains the button label and the callback to switch views.
+        # Tuples contain the button label and the callback to switch views.
         modules_info = [
             ("Kinematics", self.show_kinematics),
             ("Dynamics", self.show_dynamics),
