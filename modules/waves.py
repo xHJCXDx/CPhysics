@@ -1,26 +1,37 @@
+"""
+Waves calculations module.
+
+Provides the WavesCalculator class to solve problems related to the properties
+of traveling waves.
+"""
+
 import numpy as np
 
 class WavesCalculator:
-    """
-    Performs calculations related to the properties of traveling waves.
-    """
+    """Performs calculations related to the properties of traveling waves."""
+
     def calculate_wave_properties(self, params: dict) -> dict:
         """
-        Calculates the missing wave properties from the given parameters.
+        Calculates missing wave properties from the given parameters.
+
+        The core relationship used is v = f * λ. Other properties like
+        period (T), angular frequency (ω), and wave number (k) are
+        derived from the primary properties.
 
         Args:
-            params (dict): A dictionary with the known properties of the wave.
-                            It can contain 'amplitude', 'frequency', 'wavelength', 'velocity', 'phase'.
+            params (dict): A dictionary with known wave properties.
+                           Requires at least two of: 'velocity', 'frequency', 'wavelength'.
+                           Can also include 'amplitude' and 'phase'.
 
         Returns:
-            dict: A dictionary with the input parameters, the calculated values,
-                    the combined values, and the equations used.
+            dict: A dictionary containing input parameters, calculated values,
+                  all combined values, and the equations used.
         """
         p_in = {k: v for k, v in params.items() if v is not None}
         p_calc = {}
         equations = []
 
-        # Main calculation logic: v = f * λ
+        # --- Primary Calculation: v = f * λ ---
         if params.get('velocity') is None and params.get('frequency') is not None and params.get('wavelength') is not None:
             p_calc['velocity'] = params['frequency'] * params['wavelength']
             equations.append("v = f × λ")
@@ -35,14 +46,15 @@ class WavesCalculator:
             p_calc['wavelength'] = params['velocity'] / params['frequency']
             equations.append("λ = v / f")
 
+        # --- Secondary Calculations (derived properties) ---
         all_params = {**params, **p_calc}
 
         if all_params.get('frequency') is not None:
             p_calc['angular_frequency'] = 2 * np.pi * all_params['frequency']
+            equations.append("ω = 2π × f")
             if all_params['frequency'] != 0:
                 p_calc['period'] = 1 / all_params['frequency']
                 equations.append("T = 1 / f")
-            equations.append("ω = 2π × f")
 
         if all_params.get('wavelength') is not None and all_params['wavelength'] != 0:
             p_calc['wave_number'] = 2 * np.pi / all_params['wavelength']
@@ -55,5 +67,5 @@ class WavesCalculator:
             'input_params': p_in,
             'calculated_values': p_calc,
             'all_values': {**all_params, **p_calc},
-            'equations': list(dict.fromkeys(equations)),
+            'equations': list(dict.fromkeys(equations)),  # Remove duplicate equations
         }
