@@ -1,8 +1,8 @@
 """
-Module for the Dynamics Frame of the CPhysics application.
+Dynamics Frame for the CPhysics application.
 
 This module defines the main user interface for the dynamics section,
-which includes panels for Newton's Laws, energy, and momentum calculations.
+including panels for Newton's Laws, energy, and momentum calculations.
 """
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QSplitter, 
@@ -18,23 +18,19 @@ from gui.dynamics.plot_panel import PlotPanel
 
 class DynamicsFrame(QWidget):
     """
-    The main widget for the Dynamics module.
+    Main widget for the Dynamics module.
 
-    This class integrates the various panels for dynamics calculations (Newton's Law,
-    Energy, Momentum) and connects them with results and plotting panels.
+    This class integrates the various panels for dynamics calculations 
+    (Newton's Law, Energy, Momentum) and connects them with results and plotting panels.
     """
     def __init__(self, parent=None):
-        """
-        Initializes the DynamicsFrame, its UI, and signal connections.
-        """
+        """Initializes the DynamicsFrame, its UI, and signal connections."""
         super().__init__(parent)
         self.setup_ui()
         self.connect_signals()
 
     def setup_ui(self):
-        """
-        Sets up the graphical user interface for the dynamics frame.
-        """
+        """Sets up the graphical user interface for the dynamics frame."""
         main_layout = QHBoxLayout(self)
         splitter = QSplitter(Qt.Horizontal)
         main_layout.addWidget(splitter)
@@ -52,9 +48,7 @@ class DynamicsFrame(QWidget):
         splitter.setStretchFactor(1, 1)
 
     def create_control_panel(self):
-        """
-        Creates the left-side panel that contains all control widgets.
-        """
+        """Creates the left-side panel that contains all control widgets."""
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setMinimumWidth(400)
@@ -84,9 +78,7 @@ class DynamicsFrame(QWidget):
         return scroll_area
 
     def connect_signals(self):
-        """
-        Connects signals from child widgets to the appropriate slots.
-        """
+        """Connects signals from child widgets to the appropriate slots."""
         # Route calculation-ready signals to the results display panel.
         self.newton_panel.calculation_ready.connect(self.results_panel.display_results)
         self.energy_panel.calculation_ready.connect(self.results_panel.display_results)
@@ -100,9 +92,7 @@ class DynamicsFrame(QWidget):
 
     @Slot()
     def clear_all(self):
-        """
-        Clears all input fields and results in all panels.
-        """
+        """Clears all input fields and results in all panels."""
         self.newton_panel.clear()
         self.energy_panel.clear()
         self.momentum_panel.clear()
