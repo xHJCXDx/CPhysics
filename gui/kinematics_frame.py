@@ -1,7 +1,7 @@
 """
-Module for the Kinematics Frame of the CPhysics application.
+Kinematics Frame for the CPhysics application.
 
-This module defines the main user interface for the kinematics section,
+This module defines the main UI for the kinematics section,
 integrating control, results, plotting, and diagram panels.
 """
 
@@ -18,16 +18,14 @@ from gui.kinematics.diagram_panel import DiagramPanel
 
 class KinematicsFrame(QWidget):
     """
-    The main widget for the Kinematics module.
+    Main widget for the Kinematics module.
 
-    This class orchestrates the interaction between the user input (ControlPanel),
-    the calculation logic (KinematicsCalculator), and the display of results
+    Orchestrates the interaction between user input (ControlPanel),
+    calculation logic (KinematicsCalculator), and display of results
     (ResultsPanel, PlotPanel, DiagramPanel).
     """
     def __init__(self, parent=None):
-        """
-        Initializes the KinematicsFrame, its components, and sets up the UI.
-        """
+        """Initializes the KinematicsFrame and its components."""
         super().__init__(parent)
         
         self.calculator = KinematicsCalculator()
@@ -35,13 +33,11 @@ class KinematicsFrame(QWidget):
         self.results = {}
         
         self.setup_ui()
-        # Set the initial visibility of controls based on the default movement type.
+        # Set initial visibility of controls based on the default movement type.
         self.control_panel.on_movement_type_changed()
 
     def setup_ui(self):
-        """
-        Sets up the graphical user interface for the kinematics frame.
-        """
+        """Sets up the graphical user interface for the kinematics frame."""
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(15, 15, 15, 15)
@@ -86,9 +82,7 @@ class KinematicsFrame(QWidget):
         self.control_panel.values_changed.connect(self.update_diagram)
 
     def calculate(self):
-        """
-        Performs kinematics calculations based on the selected motion type.
-        """
+        """Performs kinematics calculations based on the selected motion type."""
         try:
             params = self.control_panel.get_input_values(self.validator)
             
@@ -123,9 +117,7 @@ class KinematicsFrame(QWidget):
             QMessageBox.critical(self, "Calculation Error", f"An unexpected error occurred during meeting point calculation: {e}")
 
     def plot_results(self):
-        """
-        Plots the results of the last successful calculation.
-        """
+        """Plots the results of the last successful calculation."""
         if not self.results:
             QMessageBox.warning(self, "Warning", "A calculation must be performed before plotting.")
             return
@@ -136,9 +128,7 @@ class KinematicsFrame(QWidget):
             QMessageBox.critical(self, "Plotting Error", f"An error occurred while generating the plot: {e}")
 
     def clear_all(self):
-        """
-        Clears all input fields, results, and plots in the active tab.
-        """
+        """Clears all input fields, results, and plots in the active tab."""
         # Differentiate clearing based on the currently selected tab.
         if self.control_panel.tab_widget.currentIndex() == 0:
             self.control_panel.clear_fields()
