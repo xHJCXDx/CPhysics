@@ -1,10 +1,13 @@
 """
-Thermodynamics calculations module
-Contains the functions to solve problems of the Ideal Gas Law
+Thermodynamics calculations module.
+
+Provides the ThermodynamicsCalculator class to solve problems related to the Ideal Gas Law.
 """
 
 class ThermodynamicsCalculator:
-    # Ideal gas constant (L·atm)/(mol·K)
+    """Performs thermodynamics calculations."""
+
+    # Ideal gas constant in (L·atm)/(mol·K)
     R = 0.0821
 
     def __init__(self):
@@ -12,32 +15,37 @@ class ThermodynamicsCalculator:
 
     def calculate_ideal_gas_law(self, params):
         """
-        Calculate parameters for the Ideal Gas Law (PV = nRT)
+        Calculates a parameter for the Ideal Gas Law (PV = nRT).
 
-        Exactly three of the four parameters must be provided:
-        P (pressure), V (volume), n (moles), T (temperature)
+        Args:
+            params (dict): A dictionary containing three of the four parameters:
+                           'P' (pressure), 'V' (volume), 'n' (moles), 'T' (temperature).
+
+        Returns:
+            dict: A dictionary containing the calculated value, input parameters,
+                  and the relevant equation.
         """
         P = params.get('P')
         V = params.get('V')
         n = params.get('n')
         T = params.get('T')
 
-        provided_params_count = sum(p is not None for p in [P, V, n, T])
-
-        if provided_params_count != 3:
-            raise ValueError("You must provide exactly three of the four parameters (P, V, n, T).")
+        if sum(p is not None for p in [P, V, n, T]) != 3:
+            raise ValueError("Exactly three of the four parameters (P, V, n, T) are required.")
 
         input_params = {}
         calculated_values = {}
-        equations = [f"PV = nRT  (with R = {self.R} L·atm/mol·K)"]
+        equations = [f"PV = nRT  (R = {self.R} L·atm/mol·K)"]
 
-        # Common validations
+        # Input validation
         if T is not None and T <= 0:
             raise ValueError("Temperature (T) must be a positive value in Kelvin.")
         if V is not None and V <= 0:
             raise ValueError("Volume (V) must be a positive value.")
         if n is not None and n <= 0:
             raise ValueError("Number of moles (n) must be a positive value.")
+        if P is not None and P <= 0:
+            raise ValueError("Pressure (P) must be a positive value.")
 
         if P is None:
             # Calculate Pressure (P)
