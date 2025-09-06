@@ -1,7 +1,7 @@
 """
-Module for the Thermodynamics Frame of the CPhysics application.
+Thermodynamics Frame for the CPhysics application.
 
-This module defines the main user interface for the thermodynamics section,
+This module defines the main UI for the thermodynamics section,
 focusing on the Ideal Gas Law.
 """
 
@@ -16,15 +16,13 @@ from gui.thermodynamics.plot_panel import PlotPanel
 
 class ThermodynamicsFrame(QWidget):
     """
-    The main widget for the Thermodynamics module.
+    Main widget for the Thermodynamics module.
 
-    This class integrates the control panel for user input, the results panel
+    Integrates the control panel for user input, the results panel
     for displaying outputs, and the plot panel for visualizing thermodynamic processes.
     """
     def __init__(self, parent=None):
-        """
-        Initializes the ThermodynamicsFrame, its components, and the UI.
-        """
+        """Initializes the ThermodynamicsFrame and its components."""
         super().__init__(parent)
         self.calculator = ThermodynamicsCalculator()
         self.results = {}
@@ -32,9 +30,7 @@ class ThermodynamicsFrame(QWidget):
         self.connect_signals()
 
     def setup_ui(self):
-        """
-        Sets up the graphical user interface for the thermodynamics frame.
-        """
+        """Sets up the graphical user interface for the thermodynamics frame."""
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(15, 15, 15, 15)
@@ -71,17 +67,13 @@ class ThermodynamicsFrame(QWidget):
         splitter.setStretchFactor(1, 1)
 
     def connect_signals(self):
-        """
-        Connects signals from the control panel to the appropriate slots.
-        """
+        """Connects signals from the control panel to the appropriate slots."""
         self.control_panel.calculate_btn.clicked.connect(self.calculate)
         self.control_panel.clear_btn.clicked.connect(self.clear_all)
         self.control_panel.plot_btn.clicked.connect(self.plot_results)
 
     def calculate(self):
-        """
-        Performs the ideal gas law calculation and displays the results.
-        """
+        """Performs the ideal gas law calculation and displays the results."""
         try:
             params = self.control_panel.get_input_values()
             self.results = self.calculator.calculate_ideal_gas_law(params)
@@ -92,18 +84,14 @@ class ThermodynamicsFrame(QWidget):
             QMessageBox.critical(self, "Calculation Error", f"An unexpected error occurred: {e}")
 
     def clear_all(self):
-        """
-        Clears all input fields, results, and the plot.
-        """
+        """Clears all input fields, results, and the plot."""
         self.control_panel.clear_fields()
         self.results_panel.clear()
         self.plot_panel.clear_plot()
         self.results = {}
 
     def plot_results(self):
-        """
-        Plots the thermodynamic processes based on the user's input.
-        """
+        """Plots the thermodynamic processes based on the user's input."""
         try:
             input_values = self.control_panel.get_input_values()
             self.plot_panel.plot(input_values, self.calculator)
