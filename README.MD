@@ -2,6 +2,8 @@
 
 A modern desktop application for solving physics problems, featuring an intuitive graphical interface and advanced visualization capabilities.
 
+<img src="img/image.png" alt="Diagrama de arquitectura" width="500">
+
 ## Features
 
 - **Graphical Interface**: Developed with PySide6 (Qt for Python).
