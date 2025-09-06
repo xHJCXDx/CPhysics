@@ -1,12 +1,10 @@
 """
-Thermodynamics Frame for the CPhysics application.
-
-This module defines the main UI for the thermodynamics section,
-focusing on the Ideal Gas Law.
+Main frame for the Thermodynamics module.
+Focuses on the Ideal Gas Law UI and logic.
 """
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QSplitter, QMessageBox, 
-                               QScrollArea, QVBoxLayout)
+                                QScrollArea, QVBoxLayout)
 from PySide6.QtCore import Qt
 
 from modules.thermodynamics import ThermodynamicsCalculator
@@ -15,14 +13,9 @@ from gui.thermodynamics.results_panel import ResultsPanel
 from gui.thermodynamics.plot_panel import PlotPanel
 
 class ThermodynamicsFrame(QWidget):
-    """
-    Main widget for the Thermodynamics module.
-
-    Integrates the control panel for user input, the results panel
-    for displaying outputs, and the plot panel for visualizing thermodynamic processes.
-    """
+    """Main widget for the Thermodynamics module. Integrates input, results, and plot panels."""
     def __init__(self, parent=None):
-        """Initializes the ThermodynamicsFrame and its components."""
+        """Initialize UI and components."""
         super().__init__(parent)
         self.calculator = ThermodynamicsCalculator()
         self.results = {}
@@ -30,7 +23,7 @@ class ThermodynamicsFrame(QWidget):
         self.connect_signals()
 
     def setup_ui(self):
-        """Sets up the graphical user interface for the thermodynamics frame."""
+        """Set up the graphical user interface."""
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(15, 15, 15, 15)

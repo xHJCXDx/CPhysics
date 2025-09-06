@@ -1,11 +1,9 @@
 """
-Thermodynamics calculations module.
-
-Provides the ThermodynamicsCalculator class to solve problems related to the Ideal Gas Law.
+Thermodynamics calculations module for Ideal Gas Law.
 """
 
 class ThermodynamicsCalculator:
-    """Performs thermodynamics calculations."""
+    """Class for Ideal Gas Law calculations."""
 
     # Ideal gas constant in (L·atm)/(mol·K)
     R = 0.0821
@@ -15,15 +13,9 @@ class ThermodynamicsCalculator:
 
     def calculate_ideal_gas_law(self, params):
         """
-        Calculates a parameter for the Ideal Gas Law (PV = nRT).
-
-        Args:
-            params (dict): A dictionary containing three of the four parameters:
-                           'P' (pressure), 'V' (volume), 'n' (moles), 'T' (temperature).
-
-        Returns:
-            dict: A dictionary containing the calculated value, input parameters,
-                  and the relevant equation.
+        Calculate one parameter for the Ideal Gas Law (PV = nRT).
+        params: dict with three known values among 'P', 'V', 'n', 'T'.
+        Returns: dict with calculated value and used equation.
         """
         P = params.get('P')
         V = params.get('V')

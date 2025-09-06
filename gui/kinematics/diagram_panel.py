@@ -7,6 +7,7 @@ from matplotlib.figure import Figure
 import numpy as np
 
 class DiagramPanel(QWidget):
+    """Panel for displaying vector and meeting diagrams in kinematics."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.figure = Figure(figsize=(5, 5), dpi=100)
@@ -28,27 +29,25 @@ class DiagramPanel(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        
         title = QLabel("Vector Diagram")
         title.setFont(QFont("Arial", 12, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
-        
         layout.addWidget(title)
         layout.addWidget(self.canvas)
 
     def update_diagram(self, velocity=None, acceleration=None, meeting_data=None):
+        """Update diagram for vectors or meeting point."""
         self.ax.clear()
         self.ax.grid(True)
-
         if meeting_data:
             self._update_meeting_diagram(meeting_data)
         else:
             self._update_vector_diagram(velocity, acceleration)
-
         self.ax.legend()
         self.canvas.draw()
 
     def _update_vector_diagram(self, velocity, acceleration):
+        """Draw velocity and acceleration vectors."""
         self.ax.set_xlim(-15, 15)
         self.ax.set_ylim(-15, 15)
 
@@ -66,6 +65,7 @@ class DiagramPanel(QWidget):
             self.ax.arrow(0, 0, ax, ay, head_width=0.5, head_length=0.7, fc='magenta', ec='magenta', label=f'Acceleration ({ax}, {ay})')
 
     def _update_meeting_diagram(self, meeting_data):
+        """Draw diagram for meeting point between two objects."""
         obj1_params = meeting_data['input_params']['Object 1']
         obj2_params = meeting_data['input_params']['Object 2']
         results = meeting_data['calculated_values']
@@ -97,6 +97,7 @@ class DiagramPanel(QWidget):
 
 
     def clear_diagram(self):
+        """Clear the diagram panel."""
         self.ax.clear()
         self.ax.set_xlim(-10, 10)
         self.ax.set_ylim(-10, 10)

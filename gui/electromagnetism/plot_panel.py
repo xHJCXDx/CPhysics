@@ -1,5 +1,5 @@
 """
-Panel de gráficos para el módulo de electromagnetismo.
+Panel for plotting relationships in the electromagnetism module.
 """
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QMessageBox
@@ -20,23 +20,19 @@ class PlotPanel(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
-
-        title = QLabel("Gráfico de Relaciones")
+        title = QLabel("Electromagnetism Relationships Plot")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
-
         self.figure = Figure(figsize=(8, 6), dpi=100)
         self.figure.patch.set_facecolor('#34495e')
         self.canvas = FigureCanvas(self.figure)
-
         self.toolbar = NavigationToolbar(self.canvas, self)
-
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
 
     def plot_results(self, results, calculator):
+        """Plot Coulomb's Law: Force vs Distance using seaborn."""
         if not results:
             QMessageBox.warning(self, "Advertencia", "Primero debe realizar un cálculo")
             return

@@ -1,14 +1,8 @@
-"""
-Main window for the CPhysics application.
-
-This module defines the main window, which contains the primary layout,
-navigation controls, and the content area for displaying physics modules.
-"""
+"""Main window for the CPhysics application."""
 
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-                               QPushButton, QLabel, QStackedWidget, QFrame)
+                                QPushButton, QLabel, QStackedWidget, QFrame)
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QFont
 
 from gui.kinematics_frame import KinematicsFrame
 from gui.dynamics_frame import DynamicsFrame

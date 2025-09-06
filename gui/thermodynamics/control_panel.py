@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
 class ControlPanel(QWidget):
+    """Thermodynamics control panel for input and actions."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.input_fields = {}
@@ -18,7 +19,7 @@ class ControlPanel(QWidget):
         layout.setSpacing(15)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        title = QLabel("Termodinámica - Ley de Gases Ideales")
+        title = QLabel("Thermodynamics - Ideal Gas Law")
         title.setFont(QFont("Arial", 16, QFont.Bold))
         
         title.setAlignment(Qt.AlignCenter)
@@ -33,22 +34,21 @@ class ControlPanel(QWidget):
         layout.addStretch()
 
     def create_parameters_section(self):
-        group = QGroupBox("Parámetros (deje uno en blanco para calcular)")
+        group = QGroupBox("Parameters (leave one blank to calculate)")
         
         layout = QGridLayout(group)
         layout.setSpacing(8)
 
         params_info = [
-            ('P', 'Presión (atm):'),
-            ('V', 'Volumen (L):'),
+            ('P', 'Pressure (atm):'),
+            ('V', 'Volume (L):'),
             ('n', 'Moles (mol):'),
-            ('T', 'Temperatura (K):'),
+            ('T', 'Temperature (K):'),
         ]
         for i, (var_name, label_text) in enumerate(params_info):
             label = QLabel(label_text)
             line_edit = QLineEdit()
-            line_edit.setPlaceholderText("Valor conocido")
-            
+            line_edit.setPlaceholderText("Known value")
             self.input_fields[var_name] = line_edit
             layout.addWidget(label, i, 0)
             layout.addWidget(line_edit, i, 1)
@@ -57,11 +57,9 @@ class ControlPanel(QWidget):
     def create_action_buttons(self):
         layout = QHBoxLayout()
         layout.setSpacing(10)
-        self.calculate_btn = QPushButton("Calcular")
-        self.clear_btn = QPushButton("Limpiar")
-        self.plot_btn = QPushButton("Graficar")
-        
-        
+        self.calculate_btn = QPushButton("Calculate")
+        self.clear_btn = QPushButton("Clear")
+        self.plot_btn = QPushButton("Plot")
         layout.addWidget(self.calculate_btn)
         layout.addWidget(self.clear_btn)
         layout.addWidget(self.plot_btn)

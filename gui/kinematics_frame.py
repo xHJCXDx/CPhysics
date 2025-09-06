@@ -6,7 +6,7 @@ integrating control, results, plotting, and diagram panels.
 """
 
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QSplitter, QMessageBox, 
-                               QScrollArea, QTabWidget)
+                                QScrollArea, QTabWidget)
 from PySide6.QtCore import Qt
 
 from modules.kinematics import KinematicsCalculator

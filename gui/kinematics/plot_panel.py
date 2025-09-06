@@ -8,6 +8,7 @@ from matplotlib.figure import Figure
 import seaborn as sns
 
 class PlotPanel(QWidget):
+    """Panel for plotting kinematics results."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.figure = Figure(figsize=(10, 8), dpi=100)
@@ -18,19 +19,16 @@ class PlotPanel(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
-        
-        title = QLabel("Gráficos")
+        title = QLabel("Kinematics Plots")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
-        
         self.figure.patch.set_facecolor('#34495e')
-        
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
 
     def plot_results(self, calculator, results):
+        """Plot kinematics results using seaborn."""
         self.figure.clear()
         sns.set_theme(style="darkgrid", rc={
             "axes.facecolor": "#2c3e50", 

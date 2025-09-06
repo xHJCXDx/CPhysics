@@ -7,9 +7,9 @@ class ResultsPanel(BaseResultsPanel):
             return
 
         param_map = {
-            'amplitude': 'Amplitud (m)', 'frequency': 'Frecuencia (Hz)', 'wavelength': 'Longitud de onda (m)',
-            'wave_number': 'Número de onda (rad/m)', 'angular_frequency': 'Frecuencia angular (rad/s)',
-            'period': 'Período (s)', 'velocity': 'Velocidad (m/s)', 'phase': 'Fase (rad)'
+            'amplitude': 'Amplitude (m)', 'frequency': 'Frequency (Hz)', 'wavelength': 'Wavelength (m)',
+            'wave_number': 'Wave Number (rad/m)', 'angular_frequency': 'Angular Frequency (rad/s)',
+            'period': 'Period (s)', 'velocity': 'Velocity (m/s)', 'phase': 'Phase (rad)'
         }
 
         calculated_values = results.get('calculated_values', {})
@@ -20,12 +20,12 @@ class ResultsPanel(BaseResultsPanel):
         
         row = 0
         for key, value in calculated_values.items():
-            self.add_row(row, f"Calculado: {param_map.get(key, key)}", f"{value:.4f}")
+            self.add_row(row, f"Calculated: {param_map.get(key, key)}", f"{value:.4f}")
             row += 1
             
         for eq in equations:
             tooltip = self.get_equation_tooltip(eq)
-            self.add_row(row, "Ecuación", eq, tooltip)
+            self.add_row(row, "Equation", eq, tooltip)
             row += 1
 
         # Wave equation

@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QDoubleValidator
 
 class ControlPanel(QWidget):
-    """Panel de control con entradas y botones de acción."""
+    """Wave control panel for input and actions."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
@@ -15,9 +15,8 @@ class ControlPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setSpacing(15)
 
-        title = QLabel("Ondas - Movimiento Ondulatorio")
+        title = QLabel("Waves - Oscillatory Motion")
         title.setFont(QFont("Arial", 16, QFont.Bold))
-        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
@@ -30,9 +29,7 @@ class ControlPanel(QWidget):
         layout.addStretch()
 
     def create_parameters_section(self):
-        group = QGroupBox("Parámetros de la Onda")
-        
-        
+        group = QGroupBox("Wave Parameters")
         form_layout = QFormLayout(group)
         form_layout.setSpacing(8)
         form_layout.setLabelAlignment(Qt.AlignRight)
@@ -49,26 +46,22 @@ class ControlPanel(QWidget):
         validator.setNotation(QDoubleValidator.StandardNotation)
         for line_edit in self.inputs.values():
             line_edit.setValidator(validator)
-            line_edit.setPlaceholderText("Valor conocido")
-            
+            line_edit.setPlaceholderText("Known value")
 
-        form_layout.addRow("Amplitud (A) [m]:", self.inputs["amplitude"])
-        form_layout.addRow("Frecuencia (f) [Hz]:", self.inputs["frequency"])
-        form_layout.addRow("Longitud de onda (λ) [m]:", self.inputs["wavelength"])
-        form_layout.addRow("Velocidad (v) [m/s]:", self.inputs["velocity"])
-        form_layout.addRow("Fase inicial (φ) [rad]:", self.inputs["phase"])
-        
+        form_layout.addRow("Amplitude (A) [m]:", self.inputs["amplitude"])
+        form_layout.addRow("Frequency (f) [Hz]:", self.inputs["frequency"])
+        form_layout.addRow("Wavelength (λ) [m]:", self.inputs["wavelength"])
+        form_layout.addRow("Velocity (v) [m/s]:", self.inputs["velocity"])
+        form_layout.addRow("Initial phase (φ) [rad]:", self.inputs["phase"])
         return group
 
     def create_action_buttons(self):
         layout = QHBoxLayout()
         layout.setSpacing(10)
 
-        self.calc_button = QPushButton("Calcular")
-        self.plot_button = QPushButton("Graficar")
-        self.clear_button = QPushButton("Limpiar")
-
-        
+        self.calc_button = QPushButton("Calculate")
+        self.plot_button = QPushButton("Plot")
+        self.clear_button = QPushButton("Clear")
 
         layout.addWidget(self.calc_button)
         layout.addWidget(self.plot_button)

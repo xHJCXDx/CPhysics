@@ -9,6 +9,7 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as Navigation
 from matplotlib.figure import Figure
 
 class PlotPanel(QWidget):
+    """Panel for plotting thermodynamics relationships."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
@@ -16,9 +17,8 @@ class PlotPanel(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
-        title = QLabel("Gráfico de Relaciones")
+        title = QLabel("Thermodynamics Relationships Plot")
         title.setFont(QFont("Arial", 14, QFont.Bold))
-        
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
@@ -26,11 +26,11 @@ class PlotPanel(QWidget):
         self.figure.patch.set_facecolor('#34495e')
         self.canvas = FigureCanvas(self.figure)
         self.toolbar = NavigationToolbar(self.canvas, self)
-        
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
 
     def plot(self, input_values, calculator):
+        """Plot P vs T for fixed V and n using seaborn."""
         self.figure.clear()
         sns.set_theme(style="darkgrid", rc={
             "axes.facecolor": "#2c3e50", 
