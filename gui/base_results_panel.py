@@ -1,1 +1,64 @@
-"\n""Base panel for displaying calculation results.\n\nThis module provides a reusable UI component for displaying results in a table format.\n""\n\nfrom PySide6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QTableWidget, QTableWidgetItem, QHeaderView\nfrom PySide6.QtCore import Qt\nimport re\n\nclass BaseResultsPanel(QWidget):\n    """A widget that displays calculation results in a table."""\n\n    def __init__(self, parent=None):\n        """Initializes the results panel and its UI."""\n        super().__init__(parent)\n        self.variable_tooltips = self.get_variable_tooltips()\n        self.setup_ui()\n\n    def setup_ui(self):\n        """Sets up the user interface for the results panel."""\n        layout = QVBoxLayout(self)\n        layout.setContentsMargins(0, 0, 0, 0)\n        \n        group = QGroupBox(\"Results\")\n        group_layout = QVBoxLayout(group)\n        \n        self.results_table = QTableWidget()\n        self.results_table.setColumnCount(2)\n        self.results_table.setHorizontalHeaderLabels([\"Parameter\", \"Value\"])\n        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)\n        self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)\n        \n        group_layout.addWidget(self.results_table)\n        layout.addWidget(group)\n\n    def display_results(self, results):\n        """\n        Displays the results in the table.\n\n        This method must be implemented by subclasses.\n        """\n        raise NotImplementedError(\"This method should be implemented by subclasses.\")\n\n    def get_variable_tooltips(self):\n        """\n        Returns a dictionary of tooltips for common physics variables.\n\n        This method can be overridden by subclasses to provide specific tooltips.\n        """\n        return {\n            'x': 'Final position (m)', 'x0': 'Initial position (m)',\n            'y': 'Final height (m)', 'y0': 'Initial height (m)',\n            'v': 'Final velocity (m/s)', 'v0': 'Initial velocity (m/s)',\n            'a': 'Acceleration (m/s²)', 't': 'Time (s)',\n            'g': 'Acceleration due to gravity (9.8 m/s²)',\n            'v0x': 'Initial velocity in x (m/s)',\n            'v0y': 'Initial velocity in y (m/s)',\n            'vx': 'Velocity in x (m/s)', 'vy': 'Velocity in y (m/s)',\n            'θ': 'Launch angle (°)',\n            't_flight': 'Time of flight (s)',\n            'y_max': 'Maximum height (m)',\n            'R': 'Horizontal range (m)'\n        }\n\n    def get_equation_tooltip(self, equation):\n        """\n        Generates a tooltip for an equation by listing its variables.\n        """\n        tooltip_parts = []\n        variables = set(re.findall(r'\b([a-zA-Z_]+[0-9]*)\b', equation))\n        for var in variables:\n            if var in self.variable_tooltips:\n                tooltip_parts.append(f"{var}: {self.variable_tooltips[var]}")\n        return "\n".join(tooltip_parts) if tooltip_parts else "Variable information not available"\n\n    def clear(self):\n        """Clears the results table."""\n        self.results_table.setRowCount(0)\n\n    def add_row(self, row, param, value, tooltip=None):\n        """\n        Adds a row to the results table.\n\n        Args:\n            row (int): The row number to insert the new row.\n            param (str): The name of the parameter.\n            value (str): The value of the parameter.\n            tooltip (str, optional): A tooltip for the value cell. Defaults to None.\n        """\n        item_param = QTableWidgetItem(param)\n        item_value = QTableWidgetItem(value)\n        if tooltip:\n            item_value.setToolTip(tooltip)\n        self.results_table.setItem(row, 0, item_param)\n        self.results_table.setItem(row, 1, item_value)\n
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QTableWidget, QTableWidgetItem, QHeaderView
+from PySide6.QtCore import Qt
+import re
+
+class BaseResultsPanel(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.variable_tooltips = self.get_variable_tooltips()
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        group = QGroupBox("Results")
+        group_layout = QVBoxLayout(group)
+        
+        self.results_table = QTableWidget()
+        self.results_table.setColumnCount(2)
+        self.results_table.setHorizontalHeaderLabels(["Parameter", "Value"])
+        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.results_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        
+        group_layout.addWidget(self.results_table)
+        layout.addWidget(group)
+
+    def display_results(self, results):
+        raise NotImplementedError("This method should be implemented by subclasses.")
+
+    def get_variable_tooltips(self):
+        # This method can be overridden by subclasses to provide specific tooltips
+        return {
+            'x': 'Final position (m)', 'x0': 'Initial position (m)',
+            'y': 'Final height (m)', 'y0': 'Initial height (m)',
+            'v': 'Final velocity (m/s)', 'v0': 'Initial velocity (m/s)',
+            'a': 'Acceleration (m/s²)', 't': 'Time (s)',
+            'g': 'Acceleration due to gravity (9.8 m/s²)',
+            'v0x': 'Initial velocity in x (m/s)',
+            'v0y': 'Initial velocity in y (m/s)',
+            'vx': 'Velocity in x (m/s)', 'vy': 'Velocity in y (m/s)',
+            'θ': 'Launch angle (°)',
+            't_flight': 'Time of flight (s)',
+            'y_max': 'Maximum height (m)',
+            'R': 'Horizontal range (m)'
+        }
+
+    def get_equation_tooltip(self, equation):
+        tooltip_parts = []
+        variables = set(re.findall(r'\b([a-zA-Z_]+[0-9]*)\b', equation))
+        for var in variables:
+            if var in self.variable_tooltips:
+                tooltip_parts.append(f"{var}: {self.variable_tooltips[var]}")
+        return "\n".join(tooltip_parts) if tooltip_parts else "Variable information not available"
+
+    def clear(self):
+        self.results_table.setRowCount(0)
+
+    def add_row(self, row, param, value, tooltip=None):
+        item_param = QTableWidgetItem(param)
+        item_value = QTableWidgetItem(value)
+        if tooltip:
+            item_value.setToolTip(tooltip)
+        self.results_table.setItem(row, 0, item_param)
+        self.results_table.setItem(row, 1, item_value)
