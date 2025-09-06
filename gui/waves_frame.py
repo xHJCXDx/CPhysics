@@ -1,7 +1,7 @@
 """
-Module for the Waves Frame of the CPhysics application.
+Waves Frame for the CPhysics application.
 
-This module defines the main user interface for the waves section,
+This module defines the main UI for the waves section,
 integrating the control, results, and plotting panels.
 """
 
@@ -17,10 +17,10 @@ from gui.waves.plot_panel import PlotPanel
 
 class WavesFrame(QWidget):
     """
-    The main widget for the Waves module.
+    Main widget for the Waves module.
 
-    This class orchestrates the interaction between the user input (ControlPanel),
-    the calculation logic (WavesCalculator), and the display of results
+    Orchestrates the interaction between user input (ControlPanel),
+    calculation logic (WavesCalculator), and display of results
     (ResultsPanel, PlotPanel).
     """
     def __init__(self, parent=None):
@@ -76,8 +76,8 @@ class WavesFrame(QWidget):
 
     def calculate_and_display(self):
         """ 
-        Performs wave properties calculation and updates the results panel.
-        It also updates the input fields with any newly calculated values.
+        Performs wave properties calculation, updates the results panel,
+        and fills empty input fields with newly calculated values.
         """
         try:
             params = self.control_panel.get_input_values()
@@ -90,7 +90,7 @@ class WavesFrame(QWidget):
             QMessageBox.critical(self, "Calculation Error", f"An unexpected error occurred: {e}")
 
     def update_inputs_with_results(self):
-        """Fills empty input fields with values calculated by the logic module."""
+        """Fills empty input fields with values from the calculation results."""
         if 'calculated_values' in self.results:
             for key, value in self.results['calculated_values'].items():
                 if key in self.control_panel.inputs and not self.control_panel.inputs[key].text():
