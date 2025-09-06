@@ -12,6 +12,23 @@ from matplotlib.figure import Figure
 import seaborn as sns
 import numpy as np
 
+class MplCanvas(FigureCanvas):
+    """Custom Matplotlib canvas widget to integrate with PySide6."""
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        """Initializes the Matplotlib canvas."""
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
+        self.setParent(parent)
+        
+        # Apply a dark theme to the plot.
+        fig.patch.set_facecolor('#34495e')
+        self.axes.set_facecolor('#2c3e50')
+        self.axes.tick_params(axis='x', colors='#ecf0f1')
+        self.axes.tick_params(axis='y', colors='#ecf0f1')
+        for spine in self.axes.spines.values():
+            spine.set_edgecolor('#ecf0f1')
+
 class PlotPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -24,12 +41,19 @@ class PlotPanel(QWidget):
         title.setFont(QFont("Arial", 14, QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
-        self.figure = Figure(figsize=(8, 6), dpi=100)
-        self.figure.patch.set_facecolor('#34495e')
-        self.canvas = FigureCanvas(self.figure)
+        
+        self.canvas = MplCanvas(self, width=8, height=6, dpi=100)
         self.toolbar = NavigationToolbar(self.canvas, self)
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
+        self.initialize_plot()
+
+    def initialize_plot(self):
+        """Sets the initial state of the plot."""
+        self.canvas.axes.clear()
+        self.canvas.axes.set_title("Electromagnetism Plot", color='#ecf0f1')
+        self.canvas.axes.grid(True, color='#4a627a', linestyle='--', linewidth=0.5)
+        self.canvas.draw()
 
     def plot_results(self, results, calculator):
         """Plot Coulomb's Law: Force vs Distance using seaborn."""
@@ -38,17 +62,7 @@ class PlotPanel(QWidget):
             return
 
         try:
-            self.figure.clear()
-            sns.set_theme(style="darkgrid", rc={
-                "axes.facecolor": "#2c3e50", 
-                "figure.facecolor": "#34495e",
-                "text.color": "#ecf0f1",
-                "axes.labelcolor": "#ecf0f1",
-                "xtick.color": "#ecf0f1",
-                "ytick.color": "#ecf0f1",
-                "grid.color": "#4a627a",
-            })
-            ax = self.figure.add_subplot(1, 1, 1)
+            self.canvas.axes.clear()
             
             input_params = results.get('input_params', {})
             calculated_values = results.get('calculated_values', {})
@@ -72,16 +86,21 @@ class PlotPanel(QWidget):
             r_values = np.linspace(r_min_plot, r_max_plot, 100)
             F_values = (calculator.K * abs(q1 * q2)) / (r_values**2)
 
-            sns.lineplot(x=r_values, y=F_values, ax=ax, color='#3498db', linewidth=2.5, label='Fuerza vs Distancia')
+            sns.lineplot(x=r_values, y=F_values, ax=self.canvas.axes, color='#3498db', linewidth=2.5, label='Fuerza vs Distancia')
             
             if r_calc is not None and F_calc is not None:
-                ax.plot(r_calc, F_calc, 'o', color='#e74c3c', markersize=8, label=f'Punto calculado (r={r_calc:.2f}m, F={F_calc:.2e}N)')
+                self.canvas.axes.plot(r_calc, F_calc, 'o', color='#e74c3c', markersize=8, label=f'Punto calculado (r={r_calc:.2f}m, F={F_calc:.2e}N)')
 
-            ax.set_xlabel('Distancia (r) [m]', fontsize=12, color='#ecf0f1')
-            ax.set_ylabel('Fuerza (F) [N]', fontsize=12, color='#ecf0f1')
-            ax.set_title('Ley de Coulomb: Fuerza vs Distancia', fontsize=14, fontweight='bold', color='#ecf0f1')
-            ax.legend()
-            self.figure.tight_layout(pad=3.0)
+            self.canvas.axes.set_xlabel('Distancia (r) [m]', fontsize=12, color='#ecf0f1')
+            self.canvas.axes.set_ylabel('Fuerza (F) [N]', fontsize=12, color='#ecf0f1')
+            self.canvas.axes.set_title('Ley de Coulomb: Fuerza vs Distancia', fontsize=14, fontweight='bold', color='#ecf0f1')
+            self.canvas.axes.grid(True, color='#4a627a', linestyle='--', linewidth=0.5)
+            
+            legend = self.canvas.axes.legend(fontsize=11)
+            legend.get_frame().set_facecolor('#34495e')
+            legend.get_frame().set_edgecolor('#4a627a')
+            for text in legend.get_texts():
+                text.set_color('#ecf0f1')
 
             self.canvas.draw()
 
@@ -89,6 +108,4 @@ class PlotPanel(QWidget):
             QMessageBox.critical(self, "Error", f"Error al generar gráfico:\n{str(e)}")
 
     def clear_plot(self):
-        self.figure.clear()
-        self.figure.add_subplot(1, 1, 1)
-        self.canvas.draw()
+        self.initialize_plot()

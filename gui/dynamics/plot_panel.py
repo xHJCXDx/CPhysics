@@ -11,6 +11,23 @@ from PySide6.QtGui import QFont
 from modules.dynamics import DynamicsCalculator
 from utils.validators import InputValidator
 
+class MplCanvas(FigureCanvas):
+    """Custom Matplotlib canvas widget to integrate with PySide6."""
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        """Initializes the Matplotlib canvas."""
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        super(MplCanvas, self).__init__(fig)
+        self.setParent(parent)
+        
+        # Apply a dark theme to the plot.
+        fig.patch.set_facecolor('#34495e')
+        self.axes.set_facecolor('#2c3e50')
+        self.axes.tick_params(axis='x', colors='#ecf0f1')
+        self.axes.tick_params(axis='y', colors='#ecf0f1')
+        for spine in self.axes.spines.values():
+            spine.set_edgecolor('#ecf0f1')
+
 class PlotPanel(QWidget):
     # Signal to request data needed for plotting from the main frame
     plot_data_requested = Signal(str, str, str) # x_var, y_var, constant_value
@@ -35,8 +52,7 @@ class PlotPanel(QWidget):
         controls_layout = self.create_controls()
         layout.addLayout(controls_layout)
 
-        self.figure = Figure(figsize=(8, 6), dpi=100)
-        self.canvas = FigureCanvas(self.figure)
+        self.canvas = MplCanvas(self, width=8, height=6, dpi=100)
         self.toolbar = NavigationToolbar(self.canvas, self)
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
@@ -97,30 +113,28 @@ class PlotPanel(QWidget):
             QMessageBox.critical(self, "Plotting Error", f"An unexpected error occurred while generating the plot:\n{e}")
 
     def draw_plot(self, plot_data):
-        self.figure.clear()
-        self.figure.set_facecolor('#34495e')
-        sns.set_theme(style="darkgrid", rc={
-            "axes.facecolor": "#2c3e50", "figure.facecolor": "#34495e",
-            "text.color": "#ecf0f1", "axes.labelcolor": "#ecf0f1",
-            "xtick.color": "#ecf0f1", "ytick.color": "#ecf0f1", "grid.color": "#4a627a",
-        })
-        ax = self.figure.add_subplot(1, 1, 1)
-        sns.lineplot(x=plot_data['x_data'], y=plot_data['y_data'], ax=ax, color='#e74c3c', linewidth=2.5, label='Theoretical relationship')
-        ax.set_xlabel(plot_data['x_label'], fontsize=12)
-        ax.set_ylabel(plot_data['y_label'], fontsize=12)
-        ax.set_title(plot_data['title'], fontsize=14, fontweight='bold')
-        ax.legend()
-        self.figure.tight_layout(pad=3.0)
+        self.canvas.axes.clear()
+        sns.lineplot(x=plot_data['x_data'], y=plot_data['y_data'], ax=self.canvas.axes, color='#e74c3c', linewidth=2.5, label='Theoretical relationship')
+        self.canvas.axes.set_xlabel(plot_data['x_label'], fontsize=12, color='#ecf0f1')
+        self.canvas.axes.set_ylabel(plot_data['y_label'], fontsize=12, color='#ecf0f1')
+        self.canvas.axes.set_title(plot_data['title'], fontsize=14, fontweight='bold', color='#ecf0f1')
+        self.canvas.axes.grid(True, color='#4a627a', linestyle='--', linewidth=0.5)
+        
+        legend = self.canvas.axes.legend(fontsize=11)
+        legend.get_frame().set_facecolor('#34495e')
+        legend.get_frame().set_edgecolor('#4a627a')
+        for text in legend.get_texts():
+            text.set_color('#ecf0f1')
+
         self.canvas.draw()
 
     @Slot()
     def initialize_plot(self):
-        self.figure.clear()
-        self.figure.set_facecolor('#34495e')
-        ax = self.figure.add_subplot(1, 1, 1)
-        ax.set_title("Relationship Plot")
-        ax.set_xlabel("Select variable for X-axis")
-        ax.set_ylabel("Select variable for Y-axis")
+        self.canvas.axes.clear()
+        self.canvas.axes.set_title("Relationship Plot", color='#ecf0f1')
+        self.canvas.axes.set_xlabel("Select variable for X-axis", color='#ecf0f1')
+        self.canvas.axes.set_ylabel("Select variable for Y-axis", color='#ecf0f1')
+        self.canvas.axes.grid(True, color='#4a627a', linestyle='--', linewidth=0.5)
         self.canvas.draw()
 
     def update_constant_variable(self):
